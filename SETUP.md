@@ -2,6 +2,11 @@
 
 本手冊記錄如何在本機安裝、執行、以及後續與實體板子整合的步驟。
 
+> **沒寫過程式的使用者**（例如設計系同學）請改看
+> [docs/deployment/README.md](docs/deployment/README.md)，
+> 那份從 Node.js 怎麼裝、終端機怎麼開開始帶，更詳細。
+> 本手冊假設讀者熟悉 Node / npm / git。
+
 ---
 
 ## 一、專案簡介
