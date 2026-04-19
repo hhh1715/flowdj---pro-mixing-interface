@@ -2,6 +2,12 @@
 
 本章把所有電線怎麼接講清楚。先從「最小可動系統」開始：**1 顆 MPR121 + Teensy**，驗 OK 了再加第 2、第 3 顆。
 
+## 整體接線示意圖
+
+![Wiring diagram](images/wiring-diagram.svg)
+
+（如果你想要 Fritzing 麵包板視覺風格的圖，見 [07-fritzing-guide.md](07-fritzing-guide.md)）
+
 ---
 
 ## 你需要準備的東西

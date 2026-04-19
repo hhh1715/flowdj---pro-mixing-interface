@@ -42,6 +42,7 @@
 5. [04-midi-protocol.md](04-midi-protocol.md) — MIDI 訊息對照表
 6. [05-centroid-algorithm.md](05-centroid-algorithm.md) — 質心與向量演算法
 7. [06-testing-plan.md](06-testing-plan.md) — 六階段測試流程（含銅箔膠帶原型）
+8. [07-fritzing-guide.md](07-fritzing-guide.md) — 用 Fritzing 產生麵包板風格示意圖
 
 ## 圖片
 
@@ -51,6 +52,8 @@
 | `images/teensy-4.0-pinout-back.png` | Teensy 4.0 背面腳位卡（來源：PJRC） |
 | `images/mpr121-pinout-original.jpg` | MPR121 原版 breakout 腳位（來源：Adafruit） |
 | `images/mpr121-pinout-stemma.jpg` | MPR121 STEMMA QT 版腳位（來源：Adafruit） |
+| `images/mpr121-pinout-black-generic.jpg` | 黑色通用 MPR121 IC 本體腳位（對照用） |
+| `images/wiring-diagram.svg` | 本專案完整接線示意圖（Teensy + 3×MPR121） |
 
 ## 推進原則
 

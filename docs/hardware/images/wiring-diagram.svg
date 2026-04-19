@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 680" font-family="Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #fafafa; }
+    .zone { fill: #f0f0f0; stroke: #999; stroke-width: 1; stroke-dasharray: 4,3; }
+    .zone-label { fill: #999; font-size: 11px; }
+    .comp { fill: #fffde7; stroke: #444; stroke-width: 2; rx: 4; }
+    .comp-mpr { fill: #1a1a1a; stroke: #111; stroke-width: 2; rx: 4; }
+    .comp-title { fill: #111; font-size: 14px; font-weight: bold; }
+    .comp-title-w { fill: #fff; font-size: 13px; font-weight: bold; }
+    .comp-sub { fill: #666; font-size: 10px; }
+    .comp-sub-w { fill: #bbb; font-size: 10px; }
+    .pin { fill: #333; font-size: 10px; }
+    .pin-w { fill: #fff; font-size: 10px; }
+    .node { fill: #fff; stroke: #333; stroke-width: 1.2; }
+    .w-vcc { stroke: #d32f2f; stroke-width: 2.5; fill: none; }
+    .w-gnd { stroke: #212121; stroke-width: 2.5; fill: none; }
+    .w-sda { stroke: #1976d2; stroke-width: 2.5; fill: none; }
+    .w-scl { stroke: #f57c00; stroke-width: 2.5; fill: none; }
+    .w-add { stroke: #388e3c; stroke-width: 2; fill: none; stroke-dasharray: 5,3; }
+    .rail-label { font-size: 12px; font-weight: bold; }
+    .title { font-size: 20px; font-weight: bold; fill: #111; }
+    .subtitle { font-size: 12px; fill: #555; }
+    .legend-text { font-size: 12px; fill: #333; }
+    .note { font-size: 11px; fill: #777; font-style: italic; }
+  </style>
+
+  <rect class="bg" width="1100" height="680" />
+
+  <!-- title -->
+  <text class="title" x="550" y="34" text-anchor="middle">FlowDJ Controller — Wiring Diagram</text>
+  <text class="subtitle" x="550" y="54" text-anchor="middle">Teensy 4.0 + 3× MPR121 (black generic) on EIC-104 breadboard · USB-powered</text>
+
+  <!-- breadboard zones -->
+  <rect class="zone" x="40"  y="130" width="240" height="400" />
+  <rect class="zone" x="290" y="130" width="240" height="400" />
+  <rect class="zone" x="540" y="130" width="240" height="400" />
+  <rect class="zone" x="790" y="130" width="240" height="400" />
+  <text class="zone-label" x="160" y="525" text-anchor="middle">EIC-104 zone 1</text>
+  <text class="zone-label" x="410" y="525" text-anchor="middle">EIC-104 zone 2</text>
+  <text class="zone-label" x="660" y="525" text-anchor="middle">EIC-104 zone 3</text>
+  <text class="zone-label" x="910" y="525" text-anchor="middle">EIC-104 zone 4</text>
+
+  <!-- 3.3V rail -->
+  <line class="w-vcc" x1="40" y1="90" x2="1030" y2="90" />
+  <text class="rail-label" x="30" y="94" text-anchor="end" fill="#d32f2f">3.3V</text>
+
+  <!-- GND rail -->
+  <line class="w-gnd" x1="40" y1="570" x2="1030" y2="570" />
+  <text class="rail-label" x="30" y="574" text-anchor="end" fill="#212121">GND</text>
+
+  <!-- SDA / SCL bus (between zones) -->
+  <line class="w-sda" x1="200" y1="440" x2="1030" y2="440" />
+  <text class="rail-label" x="1040" y="444" fill="#1976d2">SDA</text>
+
+  <line class="w-scl" x1="200" y1="470" x2="1030" y2="470" />
+  <text class="rail-label" x="1040" y="474" fill="#f57c00">SCL</text>
+
+  <!-- ==== Teensy 4.0 (Zone 1) ==== -->
+  <rect class="comp" x="90" y="180" width="140" height="230" />
+  <text class="comp-title" x="160" y="204" text-anchor="middle">Teensy 4.0</text>
+  <text class="comp-sub" x="160" y="220" text-anchor="middle">USB-C to PC</text>
+
+  <!-- Teensy pin nodes (right side of chip for these pins) -->
+  <circle class="node" cx="230" cy="240" r="3.5" /><text class="pin" x="222" y="243" text-anchor="end">3.3V</text>
+  <circle class="node" cx="230" cy="270" r="3.5" /><text class="pin" x="222" y="273" text-anchor="end">GND</text>
+  <circle class="node" cx="230" cy="310" r="3.5" /><text class="pin" x="222" y="313" text-anchor="end">Pin 18 (SDA0)</text>
+  <circle class="node" cx="230" cy="340" r="3.5" /><text class="pin" x="222" y="343" text-anchor="end">Pin 19 (SCL0)</text>
+
+  <!-- Teensy USB indicator -->
+  <rect x="90" y="370" width="40" height="20" fill="#666" rx="2" />
+  <text class="pin-w" x="110" y="384" text-anchor="middle">USB</text>
+
+  <!-- ==== MPR121 #1 (Zone 2) ==== -->
+  <rect class="comp-mpr" x="330" y="180" width="160" height="260" />
+  <text class="comp-title-w" x="410" y="204" text-anchor="middle">MPR121 #1</text>
+  <text class="comp-sub-w" x="410" y="220" text-anchor="middle">I²C 0x5A · buttons + jog</text>
+
+  <circle class="node" cx="330" cy="250" r="3.5" /><text class="pin-w" x="340" y="253">3.3V</text>
+  <circle class="node" cx="330" cy="280" r="3.5" /><text class="pin-w" x="340" y="283">IRQ (nc)</text>
+  <circle class="node" cx="330" cy="310" r="3.5" /><text class="pin-w" x="340" y="313">SCL</text>
+  <circle class="node" cx="330" cy="340" r="3.5" /><text class="pin-w" x="340" y="343">SDA</text>
+  <circle class="node" cx="330" cy="370" r="3.5" /><text class="pin-w" x="340" y="373">ADD → GND</text>
+  <circle class="node" cx="330" cy="400" r="3.5" /><text class="pin-w" x="340" y="403">GND</text>
+
+  <!-- electrodes (right side) -->
+  <text class="pin-w" x="480" y="240" text-anchor="end">E0 CUE</text>
+  <text class="pin-w" x="480" y="258" text-anchor="end">E1 Play</text>
+  <text class="pin-w" x="480" y="276" text-anchor="end">E2 SYNC</text>
+  <text class="pin-w" x="480" y="294" text-anchor="end">E3 —</text>
+  <text class="pin-w" x="480" y="312" text-anchor="end">E4 Jog 0°</text>
+  <text class="pin-w" x="480" y="330" text-anchor="end">E5 Jog 45°</text>
+  <text class="pin-w" x="480" y="348" text-anchor="end">E6 Jog 90°</text>
+  <text class="pin-w" x="480" y="366" text-anchor="end">E7 Jog 135°</text>
+  <text class="pin-w" x="480" y="384" text-anchor="end">E8 Jog 180°</text>
+  <text class="pin-w" x="480" y="402" text-anchor="end">E9 Jog 225°</text>
+  <text class="pin-w" x="480" y="420" text-anchor="end">E10 Jog 270°</text>
+  <text class="pin-w" x="480" y="438" text-anchor="end">E11 Jog 315°</text>
+
+  <!-- ==== MPR121 #2 (Zone 3) ==== -->
+  <rect class="comp-mpr" x="580" y="180" width="160" height="260" />
+  <text class="comp-title-w" x="660" y="204" text-anchor="middle">MPR121 #2</text>
+  <text class="comp-sub-w" x="660" y="220" text-anchor="middle">I²C 0x5B · tempo slider</text>
+
+  <circle class="node" cx="580" cy="250" r="3.5" /><text class="pin-w" x="590" y="253">3.3V</text>
+  <circle class="node" cx="580" cy="280" r="3.5" /><text class="pin-w" x="590" y="283">IRQ (nc)</text>
+  <circle class="node" cx="580" cy="310" r="3.5" /><text class="pin-w" x="590" y="313">SCL</text>
+  <circle class="node" cx="580" cy="340" r="3.5" /><text class="pin-w" x="590" y="343">SDA</text>
+  <circle class="node" cx="580" cy="370" r="3.5" /><text class="pin-w" x="590" y="373">ADD → 3.3V</text>
+  <circle class="node" cx="580" cy="400" r="3.5" /><text class="pin-w" x="590" y="403">GND</text>
+
+  <text class="pin-w" x="730" y="240" text-anchor="end">E0 Tempo 1</text>
+  <text class="pin-w" x="730" y="258" text-anchor="end">E1 Tempo 2</text>
+  <text class="pin-w" x="730" y="276" text-anchor="end">E2 Tempo 3</text>
+  <text class="pin-w" x="730" y="294" text-anchor="end">E3 Tempo 4</text>
+  <text class="pin-w" x="730" y="312" text-anchor="end">E4 Tempo 5</text>
+  <text class="pin-w" x="730" y="330" text-anchor="end">E5 Tempo 6</text>
+  <text class="pin-w" x="730" y="348" text-anchor="end">E6 Tempo 7</text>
+  <text class="pin-w" x="730" y="366" text-anchor="end">E7 Tempo 8</text>
+  <text class="pin-w" x="730" y="384" text-anchor="end">E8 Tempo 9</text>
+  <text class="pin-w" x="730" y="402" text-anchor="end">E9 Tempo 10</text>
+  <text class="pin-w" x="730" y="420" text-anchor="end">E10 —</text>
+  <text class="pin-w" x="730" y="438" text-anchor="end">E11 —</text>
+
+  <!-- ==== MPR121 #3 (Zone 4) ==== -->
+  <rect class="comp-mpr" x="830" y="180" width="160" height="260" />
+  <text class="comp-title-w" x="910" y="204" text-anchor="middle">MPR121 #3</text>
+  <text class="comp-sub-w" x="910" y="220" text-anchor="middle">I²C 0x5C · PAD + volume</text>
+
+  <circle class="node" cx="830" cy="250" r="3.5" /><text class="pin-w" x="840" y="253">3.3V</text>
+  <circle class="node" cx="830" cy="280" r="3.5" /><text class="pin-w" x="840" y="283">IRQ (nc)</text>
+  <circle class="node" cx="830" cy="310" r="3.5" /><text class="pin-w" x="840" y="313">SCL</text>
+  <circle class="node" cx="830" cy="340" r="3.5" /><text class="pin-w" x="840" y="343">SDA</text>
+  <circle class="node" cx="830" cy="370" r="3.5" /><text class="pin-w" x="840" y="373">ADD → SDA</text>
+  <circle class="node" cx="830" cy="400" r="3.5" /><text class="pin-w" x="840" y="403">GND</text>
+
+  <text class="pin-w" x="980" y="240" text-anchor="end">E0 PAD 1</text>
+  <text class="pin-w" x="980" y="258" text-anchor="end">E1 PAD 2</text>
+  <text class="pin-w" x="980" y="276" text-anchor="end">E2 PAD 3</text>
+  <text class="pin-w" x="980" y="294" text-anchor="end">E3 PAD 4</text>
+  <text class="pin-w" x="980" y="312" text-anchor="end">E4 Vol 1</text>
+  <text class="pin-w" x="980" y="330" text-anchor="end">E5 Vol 2</text>
+  <text class="pin-w" x="980" y="348" text-anchor="end">E6 Vol 3</text>
+  <text class="pin-w" x="980" y="366" text-anchor="end">E7 Vol 4</text>
+  <text class="pin-w" x="980" y="384" text-anchor="end">E8 Vol 5</text>
+  <text class="pin-w" x="980" y="402" text-anchor="end">E9 —</text>
+  <text class="pin-w" x="980" y="420" text-anchor="end">E10 —</text>
+  <text class="pin-w" x="980" y="438" text-anchor="end">E11 —</text>
+
+  <!-- ==== WIRES ==== -->
+
+  <!-- Teensy 3.3V → rail -->
+  <polyline class="w-vcc" points="230,240 260,240 260,90" />
+
+  <!-- Teensy GND → rail -->
+  <polyline class="w-gnd" points="230,270 275,270 275,570" />
+
+  <!-- Teensy SDA → SDA bus -->
+  <polyline class="w-sda" points="230,310 200,310 200,440" />
+
+  <!-- Teensy SCL → SCL bus -->
+  <polyline class="w-scl" points="230,340 180,340 180,470 200,470" />
+
+  <!-- MPR121 #1: 3.3V, GND, SCL, SDA from rail/bus -->
+  <polyline class="w-vcc" points="330,250 305,250 305,90" />
+  <polyline class="w-gnd" points="330,400 310,400 310,570" />
+  <polyline class="w-scl" points="330,310 320,310 320,470" />
+  <polyline class="w-sda" points="330,340 315,340 315,440" />
+  <!-- ADD to GND -->
+  <polyline class="w-add" points="330,370 300,370 300,560 310,560" />
+
+  <!-- MPR121 #2 -->
+  <polyline class="w-vcc" points="580,250 555,250 555,90" />
+  <polyline class="w-gnd" points="580,400 560,400 560,570" />
+  <polyline class="w-scl" points="580,310 570,310 570,470" />
+  <polyline class="w-sda" points="580,340 565,340 565,440" />
+  <!-- ADD to 3.3V -->
+  <polyline class="w-add" points="580,370 545,370 545,95" />
+
+  <!-- MPR121 #3 -->
+  <polyline class="w-vcc" points="830,250 805,250 805,90" />
+  <polyline class="w-gnd" points="830,400 810,400 810,570" />
+  <polyline class="w-scl" points="830,310 820,310 820,470" />
+  <polyline class="w-sda" points="830,340 815,340 815,440" />
+  <!-- ADD to SDA -->
+  <polyline class="w-add" points="830,370 795,370 795,440" />
+
+  <!-- ==== LEGEND ==== -->
+  <rect x="40" y="595" width="1020" height="70" fill="#fff" stroke="#ccc" rx="4" />
+  <text class="rail-label" x="55" y="615">Legend</text>
+
+  <line class="w-vcc" x1="130" y1="612" x2="170" y2="612" />
+  <text class="legend-text" x="178" y="616">3.3V (red)</text>
+
+  <line class="w-gnd" x1="280" y1="612" x2="320" y2="612" />
+  <text class="legend-text" x="328" y="616">GND (black)</text>
+
+  <line class="w-sda" x1="430" y1="612" x2="470" y2="612" />
+  <text class="legend-text" x="478" y="616">SDA I²C data (blue)</text>
+
+  <line class="w-scl" x1="640" y1="612" x2="680" y2="612" />
+  <text class="legend-text" x="688" y="616">SCL I²C clock (orange)</text>
+
+  <line class="w-add" x1="870" y1="612" x2="910" y2="612" />
+  <text class="legend-text" x="918" y="616">ADD address select (dashed green)</text>
+
+  <text class="note" x="55" y="640">Power: Teensy 4.0 USB-C → PC. Teensy on-board 3.3V regulator supplies 3 MPR121s (≈30 mA total, well within 250 mA limit).</text>
+  <text class="note" x="55" y="656">I²C pull-ups: Adafruit/black-generic MPR121 modules usually include them; no external resistors required unless bus is unstable.</text>
+</svg>
