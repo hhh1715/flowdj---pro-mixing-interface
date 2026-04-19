@@ -10,7 +10,7 @@
  * 瀏覽器支援：Chrome/Edge/Opera、Firefox 134+；Safari 不支援。
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ─── 原始 MIDI 事件（去掉 status byte 的編碼細節） ────────────────────────────
 export type MidiRawEvent =
@@ -160,15 +160,27 @@ export interface UseMidiResult {
   lastEvent: FlowDjEvent | null;
   lastRawEvent: MidiRawEvent | null;
   eventLog: FlowDjEvent[]; // 保留最近 N 筆，方便 smoke test
+  /**
+   * 手動送一個事件。
+   * - mock 模式（`useMidi({ mock: true })`）：觸發跟真硬體一樣的 state 更新
+   * - 正常模式：no-op（呼叫不會有事，方便整合期的暫時填充）
+   */
+  emit: (event: FlowDjEvent) => void;
 }
 
 export interface UseMidiOptions {
   logSize?: number; // eventLog 容量，預設 50
   onEvent?: (event: FlowDjEvent) => void; // 即時回呼（不受 logSize 限制）
+  /**
+   * 若為 true，完全跳過 navigator.requestMIDIAccess，不連實體硬體。
+   * 狀態會立刻變 'ready'、inputNames=['(mock)']。用 `emit()` 手動注入事件。
+   * 用途：設計系 UI 還沒接到實體控制器前，先驗證整合邏輯。
+   */
+  mock?: boolean;
 }
 
 export function useMidi(options: UseMidiOptions = {}): UseMidiResult {
-  const { logSize = 50 } = options;
+  const { logSize = 50, mock = false } = options;
   const [status, setStatus] = useState<MidiStatus>('idle');
   const [error, setError] = useState<Error | null>(null);
   const [inputNames, setInputNames] = useState<string[]>([]);
@@ -179,21 +191,38 @@ export function useMidi(options: UseMidiOptions = {}): UseMidiResult {
   const onEventRef = useRef(options.onEvent);
   onEventRef.current = options.onEvent;
 
+  // emit() 要能從 hook 外部叫到，但 pushEvent 的邏輯住在 useEffect 裡為了 cleanup。
+  // 用 ref 橋接：effect 建好 pushEvent 後放進 ref；emit 從 ref 讀。
+  const pushEventRef = useRef<((event: FlowDjEvent) => void) | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     let handle: MidiHandle | null = null;
 
+    const pushEvent = (e: FlowDjEvent) => {
+      if (cancelled) return;
+      setLastEvent(e);
+      setEventLog((prev) => {
+        const next = prev.length >= logSize ? prev.slice(prev.length - logSize + 1) : prev;
+        return [...next, e];
+      });
+      onEventRef.current?.(e);
+    };
+    pushEventRef.current = pushEvent;
+
+    if (mock) {
+      setStatus('ready');
+      setInputNames(['(mock)']);
+      setError(null);
+      return () => {
+        cancelled = true;
+        pushEventRef.current = null;
+      };
+    }
+
     setStatus('connecting');
     initMidi({
-      onEvent: (e) => {
-        if (cancelled) return;
-        setLastEvent(e);
-        setEventLog((prev) => {
-          const next = prev.length >= logSize ? prev.slice(prev.length - logSize + 1) : prev;
-          return [...next, e];
-        });
-        onEventRef.current?.(e);
-      },
+      onEvent: pushEvent,
       onRawEvent: (e) => {
         if (cancelled) return;
         setLastRawEvent(e);
@@ -220,9 +249,14 @@ export function useMidi(options: UseMidiOptions = {}): UseMidiResult {
 
     return () => {
       cancelled = true;
+      pushEventRef.current = null;
       handle?.cleanup();
     };
-  }, [logSize]);
+  }, [logSize, mock]);
 
-  return { status, error, inputNames, lastEvent, lastRawEvent, eventLog };
+  const emit = useCallback((event: FlowDjEvent) => {
+    pushEventRef.current?.(event);
+  }, []);
+
+  return { status, error, inputNames, lastEvent, lastRawEvent, eventLog, emit };
 }

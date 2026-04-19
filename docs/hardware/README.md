@@ -45,6 +45,7 @@
 8. [07-fritzing-guide.md](07-fritzing-guide.md) — 用 Fritzing 產生麵包板風格示意圖
 9. [08-prototype-assembly.md](08-prototype-assembly.md) — 銅箔膠帶 + 壓克力原型組裝手冊（一次剪好、一次測）
 10. [templates/electrode-template.svg](templates/electrode-template.svg) — A4 1:1 列印樣板（30 個電極）
+11. [09-ui-integration.md](09-ui-integration.md) — 拿到新 UI 後把 MIDI 接進去的 checklist（含 mock mode）
 
 ## 圖片
 
