@@ -43,6 +43,8 @@
 6. [05-centroid-algorithm.md](05-centroid-algorithm.md) — 質心與向量演算法
 7. [06-testing-plan.md](06-testing-plan.md) — 六階段測試流程（含銅箔膠帶原型）
 8. [07-fritzing-guide.md](07-fritzing-guide.md) — 用 Fritzing 產生麵包板風格示意圖
+9. [08-prototype-assembly.md](08-prototype-assembly.md) — 銅箔膠帶 + 壓克力原型組裝手冊（一次剪好、一次測）
+10. [templates/electrode-template.svg](templates/electrode-template.svg) — A4 1:1 列印樣板（30 個電極）
 
 ## 圖片
 

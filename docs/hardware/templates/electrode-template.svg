@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FlowDJ 1:1 電極列印樣板 (prototype)
+  尺寸：A4 直向 (210 × 297 mm)，所有座標以 mm 為單位
+  用途：用紙印出 → 銅箔膠帶貼在紙上 → 沿線剪 → 撕下貼到壓克力板
+
+  尺寸為「原型版」，非最終定案：
+    - Jog Wheel 外徑 80 mm (R 40)、內徑 40 mm (R 20)
+    - 速度 slider 10 片，每片 10 × 25 mm
+    - 音量 fader 5 片，每片 10 × 30 mm
+    - PAD 4 顆，每顆 22 × 22 mm
+    - 按鈕 3 顆 (CUE/Play/SYNC)，18 × 18 mm
+
+  重要：印好後請用尺量左下角校正方塊——必須是 10 × 10 mm。
+        若不準，代表印表機做了「縮放以符合頁面」，請改印原始比例。
+
+  channel 配置：
+    MPR#1 (addr 0x5A)  Ch0–7: Jog J0–J7    Ch8: CUE  Ch9: Play  Ch10: SYNC  Ch11: PAD1
+    MPR#2 (addr 0x5B)  Ch0–9: Tempo T0–T9  Ch10: PAD2  Ch11: PAD3
+    MPR#3 (addr 0x5C)  Ch0–4: Volume V0–V4  Ch5: PAD4  Ch6–11: (未使用)
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="210mm" height="297mm" viewBox="0 0 210 297"
+     font-family="Helvetica, Arial, sans-serif">
+
+  <style>
+    .cut    { fill: none;          stroke: #000; stroke-width: 0.3; }
+    .pad    { fill: #fff2cc;       stroke: #000; stroke-width: 0.3; }
+    .pad-b  { fill: #d7e9ff;       stroke: #000; stroke-width: 0.3; }
+    .pad-p  { fill: #ffd7d7;       stroke: #000; stroke-width: 0.3; }
+    .pad-j  { fill: #e8e8e8;       stroke: #000; stroke-width: 0.3; }
+    .tail   { fill: #f5f5f5;       stroke: #000; stroke-width: 0.2; stroke-dasharray: 0.6,0.4; }
+    .frame  { fill: none;          stroke: #888; stroke-width: 0.2; }
+    .calib  { fill: none;          stroke: #000; stroke-width: 0.4; }
+    .hint   { stroke: #aaa;        stroke-width: 0.15; stroke-dasharray: 0.8,0.6; fill: none; }
+    .lbl    { font-size: 2.6px;    text-anchor: middle; fill: #000; }
+    .lbl-sm { font-size: 1.8px;    text-anchor: middle; fill: #444; }
+    .title  { font-size: 4.2px;    font-weight: 700; fill: #000; }
+    .body   { font-size: 2.4px;    fill: #222; }
+  </style>
+
+  <!-- ============ 頁面標題 ============ -->
+  <text class="title" x="10" y="10">FlowDJ 1:1 電極樣板 (prototype draft)</text>
+  <text class="body"  x="10" y="14">印刷前先驗：左下角校正方塊必須 = 10 × 10 mm；若不是，印表機縮放了，請改印 100% / 原始尺寸。</text>
+
+  <!-- ============ Jog Wheel（左上，圓心 50,55，外 R40 內 R20）============ -->
+  <g id="jog">
+    <!-- 外圓 + 內圓：沿著剪 -->
+    <circle class="pad-j" cx="50" cy="55" r="40" />
+    <circle class="pad-j" cx="50" cy="55" r="20" fill="#fff" />
+    <!-- 8 條放射分割線（mid-gap 就是剪開的地方） -->
+    <line class="cut" x1="70"    y1="55"    x2="90"    y2="55"    />
+    <line class="cut" x1="64.14" y1="69.14" x2="78.28" y2="83.28" />
+    <line class="cut" x1="50"    y1="75"    x2="50"    y2="95"    />
+    <line class="cut" x1="35.86" y1="69.14" x2="21.72" y2="83.28" />
+    <line class="cut" x1="30"    y1="55"    x2="10"    y2="55"    />
+    <line class="cut" x1="35.86" y1="40.86" x2="21.72" y2="26.72" />
+    <line class="cut" x1="50"    y1="35"    x2="50"    y2="15"    />
+    <line class="cut" x1="64.14" y1="40.86" x2="78.28" y2="26.72" />
+
+    <!-- 每段中點標 channel（J0 由 3 點鐘位置起，CCW）-->
+    <text class="lbl"    x="77.72" y="66.48">J0</text>
+    <text class="lbl-sm" x="77.72" y="69.0">MPR#1 Ch0</text>
+    <text class="lbl"    x="61.48" y="82.72">J1</text>
+    <text class="lbl-sm" x="61.48" y="85.2">MPR#1 Ch1</text>
+    <text class="lbl"    x="38.52" y="82.72">J2</text>
+    <text class="lbl-sm" x="38.52" y="85.2">MPR#1 Ch2</text>
+    <text class="lbl"    x="22.28" y="66.48">J3</text>
+    <text class="lbl-sm" x="22.28" y="69.0">MPR#1 Ch3</text>
+    <text class="lbl"    x="22.28" y="43.52">J4</text>
+    <text class="lbl-sm" x="22.28" y="46.0">MPR#1 Ch4</text>
+    <text class="lbl"    x="38.52" y="27.28">J5</text>
+    <text class="lbl-sm" x="38.52" y="29.8">MPR#1 Ch5</text>
+    <text class="lbl"    x="61.48" y="27.28">J6</text>
+    <text class="lbl-sm" x="61.48" y="29.8">MPR#1 Ch6</text>
+    <text class="lbl"    x="77.72" y="43.52">J7</text>
+    <text class="lbl-sm" x="77.72" y="46.0">MPR#1 Ch7</text>
+
+    <!-- 中心提示：不是電極，貼銅箔時要空出 -->
+    <circle class="hint" cx="50" cy="55" r="18" />
+    <text class="lbl-sm" x="50" y="56">空心 — 不貼</text>
+
+    <!-- 焊線指示：從外圓中點往外 6 mm 作為引線口（使用者沿銅箔延伸出去）-->
+    <g stroke="#d00" stroke-width="0.25" fill="none">
+      <line x1="86.96" y1="70.31" x2="92.50" y2="72.60" />
+      <line x1="73.08" y1="84.19" x2="75.38" y2="89.73" />
+      <line x1="53.82" y1="94.88" x2="54.78" y2="100.85" />
+      <line x1="36.30" y1="92.20" x2="34.78" y2="98.04" />
+      <line x1="13.04" y1="70.31" x2="7.50"  y2="72.60" />
+      <line x1="16.46" y1="44.87" x2="10.77" y2="43.32" />
+      <line x1="29.50" y1="22.69" x2="27.20" y2="17.15" />
+      <line x1="53.82" y1="15.12" x2="54.78" y2="9.15"  />
+      <line x1="73.08" y1="25.81" x2="75.38" y2="20.27" />
+    </g>
+  </g>
+
+  <!-- ============ 3 按鈕（CUE / Play / SYNC）============ -->
+  <g id="buttons">
+    <!-- CUE 20,100 → 38,118 -->
+    <rect class="pad-b" x="100" y="18" width="18" height="18" />
+    <rect class="tail"  x="118" y="25" width="5"  height="4"  />
+    <text class="lbl"    x="109" y="28">CUE</text>
+    <text class="lbl-sm" x="109" y="31">MPR#1 Ch8</text>
+    <text class="lbl-sm" x="109" y="33.5">Note 36</text>
+
+    <!-- Play -->
+    <rect class="pad-b" x="100" y="40" width="18" height="18" />
+    <rect class="tail"  x="118" y="47" width="5"  height="4"  />
+    <text class="lbl"    x="109" y="50">Play</text>
+    <text class="lbl-sm" x="109" y="53">MPR#1 Ch9</text>
+    <text class="lbl-sm" x="109" y="55.5">Note 37</text>
+
+    <!-- SYNC -->
+    <rect class="pad-b" x="100" y="62" width="18" height="18" />
+    <rect class="tail"  x="118" y="69" width="5"  height="4"  />
+    <text class="lbl"    x="109" y="72">SYNC</text>
+    <text class="lbl-sm" x="109" y="75">MPR#1 Ch10</text>
+    <text class="lbl-sm" x="109" y="77.5">Note 38</text>
+  </g>
+
+  <!-- ============ 4 PADs ============ -->
+  <g id="pads">
+    <!-- PAD1 -->
+    <rect class="pad-p" x="130" y="18" width="22" height="22" />
+    <rect class="tail"  x="152" y="27" width="5"  height="4" />
+    <text class="lbl"    x="141" y="28">PAD1</text>
+    <text class="lbl-sm" x="141" y="31">MPR#1 Ch11</text>
+    <text class="lbl-sm" x="141" y="33.5">Note 40</text>
+
+    <!-- PAD2 -->
+    <rect class="pad-p" x="158" y="18" width="22" height="22" />
+    <rect class="tail"  x="180" y="27" width="5"  height="4" />
+    <text class="lbl"    x="169" y="28">PAD2</text>
+    <text class="lbl-sm" x="169" y="31">MPR#2 Ch10</text>
+    <text class="lbl-sm" x="169" y="33.5">Note 41</text>
+
+    <!-- PAD3 -->
+    <rect class="pad-p" x="130" y="44" width="22" height="22" />
+    <rect class="tail"  x="152" y="53" width="5"  height="4" />
+    <text class="lbl"    x="141" y="54">PAD3</text>
+    <text class="lbl-sm" x="141" y="57">MPR#2 Ch11</text>
+    <text class="lbl-sm" x="141" y="59.5">Note 42</text>
+
+    <!-- PAD4 -->
+    <rect class="pad-p" x="158" y="44" width="22" height="22" />
+    <rect class="tail"  x="180" y="53" width="5"  height="4" />
+    <text class="lbl"    x="169" y="54">PAD4</text>
+    <text class="lbl-sm" x="169" y="57">MPR#3 Ch5</text>
+    <text class="lbl-sm" x="169" y="59.5">Note 43</text>
+  </g>
+
+  <!-- ============ 速度 slider（Tempo, 10 片）============ -->
+  <!-- 每片 10 × 25, 間隔 2 mm → 總長 118 mm -->
+  <g id="tempo-slider">
+    <text class="title" x="10" y="112">速度 slider（Tempo, 14-bit CC 14/46）— MPR#2 Ch0–9</text>
+    <!-- 10 片 -->
+    <g>
+      <rect class="pad" x="10" y="115" width="10" height="25" />
+      <text class="lbl"    x="15" y="128">T0</text>
+      <text class="lbl-sm" x="15" y="131">M#2 C0</text>
+      <rect class="tail"  x="13" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="22" y="115" width="10" height="25" />
+      <text class="lbl"    x="27" y="128">T1</text>
+      <text class="lbl-sm" x="27" y="131">M#2 C1</text>
+      <rect class="tail"  x="25" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="34" y="115" width="10" height="25" />
+      <text class="lbl"    x="39" y="128">T2</text>
+      <text class="lbl-sm" x="39" y="131">M#2 C2</text>
+      <rect class="tail"  x="37" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="46" y="115" width="10" height="25" />
+      <text class="lbl"    x="51" y="128">T3</text>
+      <text class="lbl-sm" x="51" y="131">M#2 C3</text>
+      <rect class="tail"  x="49" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="58" y="115" width="10" height="25" />
+      <text class="lbl"    x="63" y="128">T4</text>
+      <text class="lbl-sm" x="63" y="131">M#2 C4</text>
+      <rect class="tail"  x="61" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="70" y="115" width="10" height="25" />
+      <text class="lbl"    x="75" y="128">T5</text>
+      <text class="lbl-sm" x="75" y="131">M#2 C5</text>
+      <rect class="tail"  x="73" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="82" y="115" width="10" height="25" />
+      <text class="lbl"    x="87" y="128">T6</text>
+      <text class="lbl-sm" x="87" y="131">M#2 C6</text>
+      <rect class="tail"  x="85" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="94" y="115" width="10" height="25" />
+      <text class="lbl"    x="99" y="128">T7</text>
+      <text class="lbl-sm" x="99" y="131">M#2 C7</text>
+      <rect class="tail"  x="97" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="106" y="115" width="10" height="25" />
+      <text class="lbl"    x="111" y="128">T8</text>
+      <text class="lbl-sm" x="111" y="131">M#2 C8</text>
+      <rect class="tail"  x="109" y="140" width="4"  height="5" />
+
+      <rect class="pad" x="118" y="115" width="10" height="25" />
+      <text class="lbl"    x="123" y="128">T9</text>
+      <text class="lbl-sm" x="123" y="131">M#2 C9</text>
+      <rect class="tail"  x="121" y="140" width="4"  height="5" />
+    </g>
+  </g>
+
+  <!-- ============ 音量 fader（Volume, 5 片）============ -->
+  <g id="volume-fader">
+    <text class="title" x="10" y="158">音量 fader（Volume, CC 7）— MPR#3 Ch0–4</text>
+    <g>
+      <rect class="pad" x="10" y="162" width="10" height="30" />
+      <text class="lbl"    x="15" y="178">V0</text>
+      <text class="lbl-sm" x="15" y="181">M#3 C0</text>
+      <rect class="tail"  x="13" y="192" width="4"  height="5" />
+
+      <rect class="pad" x="22" y="162" width="10" height="30" />
+      <text class="lbl"    x="27" y="178">V1</text>
+      <text class="lbl-sm" x="27" y="181">M#3 C1</text>
+      <rect class="tail"  x="25" y="192" width="4"  height="5" />
+
+      <rect class="pad" x="34" y="162" width="10" height="30" />
+      <text class="lbl"    x="39" y="178">V2</text>
+      <text class="lbl-sm" x="39" y="181">M#3 C2</text>
+      <rect class="tail"  x="37" y="192" width="4"  height="5" />
+
+      <rect class="pad" x="46" y="162" width="10" height="30" />
+      <text class="lbl"    x="51" y="178">V3</text>
+      <text class="lbl-sm" x="51" y="181">M#3 C3</text>
+      <rect class="tail"  x="49" y="192" width="4"  height="5" />
+
+      <rect class="pad" x="58" y="162" width="10" height="30" />
+      <text class="lbl"    x="63" y="178">V4</text>
+      <text class="lbl-sm" x="63" y="181">M#3 C4</text>
+      <rect class="tail"  x="61" y="192" width="4"  height="5" />
+    </g>
+  </g>
+
+  <!-- ============ 圖例 / 操作說明 ============ -->
+  <g id="legend" transform="translate(80,160)">
+    <text class="title" x="0" y="0">圖例</text>
+    <rect class="pad-j" x="0" y="4"  width="6" height="4" />
+    <text class="body"  x="8" y="7.5">淺灰 = Jog 電極（實心銅箔）</text>
+    <rect class="pad"   x="0" y="10" width="6" height="4" />
+    <text class="body"  x="8" y="13.5">淺黃 = Slider / Fader 電極</text>
+    <rect class="pad-b" x="0" y="16" width="6" height="4" />
+    <text class="body"  x="8" y="19.5">淺藍 = 按鈕（CUE / Play / SYNC）</text>
+    <rect class="pad-p" x="0" y="22" width="6" height="4" />
+    <text class="body"  x="8" y="25.5">淺紅 = PAD</text>
+    <rect class="tail"  x="0" y="28" width="6" height="4" />
+    <text class="body"  x="8" y="31.5">虛線小方 = 焊線尾（延伸 3–5 mm 銅箔當接點）</text>
+    <line stroke="#d00" stroke-width="0.25" x1="0" y1="36" x2="6" y2="36" />
+    <text class="body"  x="8" y="37.5">紅短線 = Jog 各弧的焊線口位置</text>
+    <circle class="hint" cx="3" cy="42" r="2" />
+    <text class="body"  x="8" y="43.5">點狀虛線 = 不貼銅（空心區）</text>
+  </g>
+
+  <!-- ============ 校正方塊 ============ -->
+  <g id="calibration" transform="translate(10,215)">
+    <text class="title" x="0" y="0">校正方塊 — 先用尺量！</text>
+    <rect class="calib" x="0" y="3" width="10" height="10" />
+    <line class="calib" x1="0"  y1="3"  x2="10" y2="13" />
+    <line class="calib" x1="10" y1="3"  x2="0"  y2="13" />
+    <text class="body" x="13" y="9">量出來必須 = 10 × 10 mm（± 0.3 mm 可接受）。</text>
+    <text class="body" x="13" y="12.5">若不合，請改印 100% / 原始尺寸（不要「縮放以符合頁面」）。</text>
+  </g>
+
+  <!-- ============ 工作流程備忘 ============ -->
+  <g id="flow" transform="translate(10,235)">
+    <text class="title" x="0" y="0">建議流程（詳見 docs/hardware/08-prototype-assembly.md）</text>
+    <text class="body" x="0" y="5">  1. 印這張 → 量校正方塊 → OK 才繼續。</text>
+    <text class="body" x="0" y="9">  2. 把銅箔膠帶貼在紙上每個電極形狀上（貼滿、蓋過邊）。</text>
+    <text class="body" x="0" y="13"> 3. 用美工刀沿實線剪下電極 + 焊線尾，連紙一起撕下（紙會跟銅箔一起分離）。</text>
+    <text class="body" x="0" y="17"> 4. 把銅箔那面朝下貼到壓克力板上；焊線尾靠近板邊，方便杜邦線接出來。</text>
+    <text class="body" x="0" y="21"> 5. 在每條焊線尾焊／貼一條杜邦線，另一端接到對應的 MPR121 電極腳。</text>
+    <text class="body" x="0" y="25"> 6. 全部 30 個都接完，一次跑 06-testing-plan.md 的 Phase 1–4。</text>
+  </g>
+
+  <!-- ============ 尾註 ============ -->
+  <g id="footer" transform="translate(10,272)">
+    <text class="body" x="0" y="0">尺寸屬原型（prototype）：Jog ⌀80 mm，slider 片 10×25 mm，fader 片 10×30 mm。最終版再依外殼調整。</text>
+    <text class="body" x="0" y="4">channel 配置：MPR#1=0x5A (Jog + 3 btn + PAD1)   MPR#2=0x5B (Tempo + PAD2/3)   MPR#3=0x5C (Volume + PAD4)</text>
+    <text class="body" x="0" y="8">MIDI 對照：docs/hardware/04-midi-protocol.md  ·  I²C 位址：02-mpr121-pinout.md  ·  主手冊：README.md</text>
+  </g>
+
+  <!-- ============ 外框（可裁）============ -->
+  <rect class="frame" x="5" y="5" width="200" height="287" />
+</svg>
