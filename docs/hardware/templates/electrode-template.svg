@@ -1,211 +1,181 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  FlowDJ 1:1 電極列印樣板 v3
-  佈局參考 docs/hardware/images/deck-layout-target.png（花瓣 Jog / 雙弧 slider / 2x2 PAD）
-  A4 直向 210 × 297 mm，座標 mm。印前先量右上校正方塊 = 10 × 10 mm。
--->
+<!-- FlowDJ 1:1 電極樣板 v4（簡單實用版）· A4 直 210 × 297 mm · 印前量右上校正方塊 = 10 × 10 mm。 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297" font-family="Noto Sans CJK TC, Noto Sans TC, PingFang TC, Microsoft JhengHei, Helvetica, Arial, sans-serif">
 <rect x="0" y="0" width="210" height="297" fill="#ffffff"/>
 
   <style>
-    .pad-cue  { fill: #ffb74d; stroke: #000; stroke-width: 0.5; }
-    .pad-jog  { fill: #ffd180; stroke: #000; stroke-width: 0.4; }
-    .pad-tempo{ fill: #fff2a8; stroke: #000; stroke-width: 0.4; }
-    .pad-vol  { fill: #c8e6c9; stroke: #000; stroke-width: 0.4; }
-    .pad-btn  { fill: #fff9c4; stroke: #000; stroke-width: 0.4; }
-    .pad-play { fill: #a5d6a7; stroke: #000; stroke-width: 0.4; }
-    .pad-p    { fill: #ffccbc; stroke: #000; stroke-width: 0.4; }
-    .tail     { fill: #f5f5f5; stroke: #000; stroke-width: 0.25; stroke-dasharray: 0.6,0.4; }
-    .frame    { fill: none;    stroke: #888; stroke-width: 0.2; }
-    .calib    { fill: none;    stroke: #000; stroke-width: 0.4; }
-    .hint     { fill: none;    stroke: #aaa; stroke-width: 0.15; stroke-dasharray: 0.8,0.6; }
-    .lbl      { font-size: 2.7px; text-anchor: middle; fill: #000; font-weight: 700; }
-    .lbl-sm   { font-size: 1.8px; text-anchor: middle; fill: #444; }
-    .title    { font-size: 4.2px; font-weight: 700; fill: #000; }
-    .body     { font-size: 2.4px; fill: #222; }
-    .legend-title { font-size: 3px;   font-weight: 700; fill: #000; }
-    .tri      { fill: #2e7d32; stroke: none; }
+    .pad     { fill: #fff2cc; stroke: #000; stroke-width: 0.4; }
+    .pad-j   { fill: #e8e8e8; stroke: #000; stroke-width: 0.4; }
+    .pad-cue { fill: #ffe0b2; stroke: #000; stroke-width: 0.5; }
+    .pad-b   { fill: #d7e9ff; stroke: #000; stroke-width: 0.4; }
+    .pad-p   { fill: #ffd7d7; stroke: #000; stroke-width: 0.4; }
+    .tail    { fill: #f5f5f5; stroke: #000; stroke-width: 0.25; stroke-dasharray: 0.6,0.4; }
+    .frame   { fill: none;    stroke: #888; stroke-width: 0.2; }
+    .calib   { fill: none;    stroke: #000; stroke-width: 0.4; }
+    .hint    { fill: none;    stroke: #aaa; stroke-width: 0.15; stroke-dasharray: 0.8,0.6; }
+    .lbl     { font-size: 2.7px; text-anchor: middle; fill: #000; font-weight: 700; }
+    .lbl-sm  { font-size: 1.8px; text-anchor: middle; fill: #444; }
+    .title   { font-size: 4px;   font-weight: 700; fill: #000; }
+    .body    { font-size: 2.3px; fill: #222; }
   </style>
 
-<text class="title" x="8" y="10">FlowDJ 1:1 電極樣板（v3 · 貼近原型外觀）</text>
-<text class="body"  x="8" y="14">印前先驗右上角校正方塊 = 10 × 10 mm；印表機若縮放就關閉「符合頁面」、改 100%。</text>
+<text class="title" x="8" y="10">FlowDJ 1:1 電極樣板（v4 · 簡單實用）</text>
+<text class="body"  x="8" y="14">印前量右上校正方塊 = 10 × 10 mm（印表機縮放請關閉）。</text>
 <g id="calibration">
   <rect class="calib" x="188" y="7" width="10" height="10"/>
   <line class="calib" x1="188" y1="7"  x2="198" y2="17"/>
   <line class="calib" x1="198" y1="7"  x2="188" y2="17"/>
   <text class="lbl-sm" x="193" y="20.5">10 × 10 mm</text>
 </g>
-<g id="pads">
-  <text class="title" x="14.0" y="23.0">Sample PAD 1–4</text>
-  <rect class="pad-p" x="14.0" y="26.0" width="24.0" height="24.0" rx="2.5" ry="2.5"/>
-  <rect class="tail" x="24.00" y="50.50" width="4" height="4"/>
-  <text class="lbl"    x="26.00" y="37.00">PAD1</text>
-  <text class="lbl-sm" x="26.00" y="40.50">M#1 Ch11</text>
-  <text class="lbl-sm" x="26.00" y="43.50">Note 40</text>
-  <rect class="pad-p" x="42.0" y="26.0" width="24.0" height="24.0" rx="2.5" ry="2.5"/>
-  <rect class="tail" x="52.00" y="50.50" width="4" height="4"/>
-  <text class="lbl"    x="54.00" y="37.00">PAD2</text>
-  <text class="lbl-sm" x="54.00" y="40.50">M#2 Ch10</text>
-  <text class="lbl-sm" x="54.00" y="43.50">Note 41</text>
-  <rect class="pad-p" x="14.0" y="54.0" width="24.0" height="24.0" rx="2.5" ry="2.5"/>
-  <rect class="tail" x="24.00" y="78.50" width="4" height="4"/>
-  <text class="lbl"    x="26.00" y="65.00">PAD3</text>
-  <text class="lbl-sm" x="26.00" y="68.50">M#2 Ch11</text>
-  <text class="lbl-sm" x="26.00" y="71.50">Note 42</text>
-  <rect class="pad-p" x="42.0" y="54.0" width="24.0" height="24.0" rx="2.5" ry="2.5"/>
-  <rect class="tail" x="52.00" y="78.50" width="4" height="4"/>
-  <text class="lbl"    x="54.00" y="65.00">PAD4</text>
-  <text class="lbl-sm" x="54.00" y="68.50">M#3 Ch5</text>
-  <text class="lbl-sm" x="54.00" y="71.50">Note 43</text>
-</g>
 <g id="jog">
-  <circle class="hint" cx="92.0" cy="138.0" r="51.0"/>
-  <path class="pad-jog" d="M 118.475 128.884 A 10.000 10.000 0 0 0 137.385 122.373 A 48.000 48.000 0 0 1 137.385 153.627 A 10.000 10.000 0 0 0 118.475 147.116 A 28.000 28.000 0 0 0 118.475 128.884 Z"/>
-  <path class="tail" d="M 140.970 136.290 L 144.968 136.150 A 53.000 53.000 0 0 1 144.968 139.850 L 140.970 139.710 A 49.000 49.000 0 0 0 140.970 136.290 Z"/>
-  <text class="lbl"    x="130.00" y="137.80">J0</text>
-  <text class="lbl-sm" x="130.00" y="140.40">M#1 Ch0</text>
-  <path class="pad-jog" d="M 117.166 150.274 A 10.000 10.000 0 0 0 135.142 159.042 A 48.000 48.000 0 0 1 113.042 181.142 A 10.000 10.000 0 0 0 104.274 163.166 A 28.000 28.000 0 0 0 117.166 150.274 Z"/>
-  <path class="tail" d="M 127.836 171.418 L 130.762 174.146 A 53.000 53.000 0 0 1 128.146 176.762 L 125.418 173.836 A 49.000 49.000 0 0 0 127.836 171.418 Z"/>
-  <text class="lbl"    x="118.87" y="164.67">J1</text>
-  <text class="lbl-sm" x="118.87" y="167.27">M#1 Ch1</text>
-  <path class="pad-jog" d="M 101.116 164.475 A 10.000 10.000 0 0 0 107.627 183.385 A 48.000 48.000 0 0 1 76.373 183.385 A 10.000 10.000 0 0 0 82.884 164.475 A 28.000 28.000 0 0 0 101.116 164.475 Z"/>
-  <path class="tail" d="M 93.710 186.970 L 93.850 190.968 A 53.000 53.000 0 0 1 90.150 190.968 L 90.290 186.970 A 49.000 49.000 0 0 0 93.710 186.970 Z"/>
-  <text class="lbl"    x="92.00" y="175.80">J2</text>
-  <text class="lbl-sm" x="92.00" y="178.40">M#1 Ch2</text>
-  <path class="pad-jog" d="M 79.726 163.166 A 10.000 10.000 0 0 0 70.958 181.142 A 48.000 48.000 0 0 1 48.858 159.042 A 10.000 10.000 0 0 0 66.834 150.274 A 28.000 28.000 0 0 0 79.726 163.166 Z"/>
-  <path class="tail" d="M 58.582 173.836 L 55.854 176.762 A 53.000 53.000 0 0 1 53.238 174.146 L 56.164 171.418 A 49.000 49.000 0 0 0 58.582 173.836 Z"/>
-  <text class="lbl"    x="65.13" y="164.67">J3</text>
-  <text class="lbl-sm" x="65.13" y="167.27">M#1 Ch3</text>
-  <path class="pad-jog" d="M 65.525 147.116 A 10.000 10.000 0 0 0 46.615 153.627 A 48.000 48.000 0 0 1 46.615 122.373 A 10.000 10.000 0 0 0 65.525 128.884 A 28.000 28.000 0 0 0 65.525 147.116 Z"/>
-  <path class="tail" d="M 43.030 139.710 L 39.032 139.850 A 53.000 53.000 0 0 1 39.032 136.150 L 43.030 136.290 A 49.000 49.000 0 0 0 43.030 139.710 Z"/>
-  <text class="lbl"    x="54.00" y="137.80">J4</text>
-  <text class="lbl-sm" x="54.00" y="140.40">M#1 Ch4</text>
-  <path class="pad-jog" d="M 66.834 125.726 A 10.000 10.000 0 0 0 48.858 116.958 A 48.000 48.000 0 0 1 70.958 94.858 A 10.000 10.000 0 0 0 79.726 112.834 A 28.000 28.000 0 0 0 66.834 125.726 Z"/>
-  <path class="tail" d="M 56.164 104.582 L 53.238 101.854 A 53.000 53.000 0 0 1 55.854 99.238 L 58.582 102.164 A 49.000 49.000 0 0 0 56.164 104.582 Z"/>
-  <text class="lbl"    x="65.13" y="110.93">J5</text>
-  <text class="lbl-sm" x="65.13" y="113.53">M#1 Ch5</text>
-  <path class="pad-jog" d="M 82.884 111.525 A 10.000 10.000 0 0 0 76.373 92.615 A 48.000 48.000 0 0 1 107.627 92.615 A 10.000 10.000 0 0 0 101.116 111.525 A 28.000 28.000 0 0 0 82.884 111.525 Z"/>
-  <path class="tail" d="M 90.290 89.030 L 90.150 85.032 A 53.000 53.000 0 0 1 93.850 85.032 L 93.710 89.030 A 49.000 49.000 0 0 0 90.290 89.030 Z"/>
-  <text class="lbl"    x="92.00" y="99.80">J6</text>
-  <text class="lbl-sm" x="92.00" y="102.40">M#1 Ch6</text>
-  <path class="pad-jog" d="M 104.274 112.834 A 10.000 10.000 0 0 0 113.042 94.858 A 48.000 48.000 0 0 1 135.142 116.958 A 10.000 10.000 0 0 0 117.166 125.726 A 28.000 28.000 0 0 0 104.274 112.834 Z"/>
-  <path class="tail" d="M 125.418 102.164 L 128.146 99.238 A 53.000 53.000 0 0 1 130.762 101.854 L 127.836 104.582 A 49.000 49.000 0 0 0 125.418 102.164 Z"/>
-  <text class="lbl"    x="118.87" y="110.93">J7</text>
-  <text class="lbl-sm" x="118.87" y="113.53">M#1 Ch7</text>
-  <circle class="pad-cue" cx="92.0" cy="138.0" r="20.0"/>
-  <rect class="tail" x="90.50" y="113.50" width="3" height="4"/>
-  <text class="lbl"    x="92.0" y="136.50" font-size="4">CUE</text>
-  <text class="lbl-sm" x="92.0" y="139.50">M#1 Ch8</text>
-  <text class="lbl-sm" x="92.0" y="142.00">Note 36</text>
-</g>
-<g id="tempo">
-  <text class="title" x="149.98" y="80.02">速度 Tempo</text>
-  <text class="body"  x="149.98" y="84.02">14-bit CC 14/46 · M#2 Ch0–9</text>
-  <path class="pad-tempo" d="M 106.494 83.908 L 109.600 72.317 A 68.000 68.000 0 0 1 116.092 74.411 L 111.840 85.632 A 56.000 56.000 0 0 0 106.494 83.908 Z"/>
-  <path class="tail" d="M 111.656 72.381 L 112.660 69.028 A 72.000 72.000 0 0 1 115.530 69.953 L 114.386 73.261 A 68.500 68.500 0 0 0 111.656 72.381 Z"/>
-  <text class="lbl"    x="111.03" y="78.79">T0</text>
-  <text class="lbl-sm" x="111.03" y="81.19">C0</text>
-  <path class="pad-tempo" d="M 114.106 86.548 L 118.843 75.522 A 68.000 68.000 0 0 1 124.967 78.526 L 119.149 89.021 A 56.000 56.000 0 0 0 114.106 86.548 Z"/>
-  <path class="tail" d="M 120.868 75.880 L 122.343 72.706 A 72.000 72.000 0 0 1 125.051 74.034 L 123.444 77.143 A 68.500 68.500 0 0 0 120.868 75.880 Z"/>
-  <text class="lbl"    x="119.30" y="82.13">T1</text>
-  <text class="lbl-sm" x="119.30" y="84.53">C1</text>
-  <path class="pad-tempo" d="M 121.260 90.252 L 127.530 80.020 A 68.000 68.000 0 0 1 133.160 83.872 L 125.896 93.424 A 56.000 56.000 0 0 0 121.260 90.252 Z"/>
-  <path class="tail" d="M 129.483 80.665 L 131.398 77.736 A 72.000 72.000 0 0 1 133.887 79.438 L 131.851 82.285 A 68.500 68.500 0 0 0 129.483 80.665 Z"/>
-  <text class="lbl"    x="127.01" y="86.63">T2</text>
-  <text class="lbl-sm" x="127.01" y="89.03">C2</text>
-  <path class="pad-tempo" d="M 127.809 94.945 L 135.482 85.719 A 68.000 68.000 0 0 1 140.501 90.338 L 131.942 98.749 A 56.000 56.000 0 0 0 127.809 94.945 Z"/>
-  <path class="tail" d="M 137.322 86.637 L 139.638 84.013 A 72.000 72.000 0 0 1 141.857 86.055 L 139.433 88.580 A 68.500 68.500 0 0 0 137.322 86.637 Z"/>
-  <text class="lbl"    x="133.99" y="92.18">T3</text>
-  <text class="lbl-sm" x="133.99" y="94.58">C3</text>
-  <path class="pad-tempo" d="M 133.616 100.529 L 142.534 92.499 A 68.000 68.000 0 0 1 146.838 97.791 L 137.161 104.887 A 56.000 56.000 0 0 0 133.616 100.529 Z"/>
-  <path class="tail" d="M 144.223 93.672 L 146.892 91.407 A 72.000 72.000 0 0 1 148.795 93.747 L 146.034 95.898 A 68.500 68.500 0 0 0 144.223 93.672 Z"/>
-  <text class="lbl"    x="140.10" y="98.68">T4</text>
-  <text class="lbl-sm" x="140.10" y="101.08">C4</text>
-  <path class="pad-tempo" d="M 138.562 106.888 L 148.540 100.221 A 68.000 68.000 0 0 1 152.040 106.076 L 141.445 111.710 A 56.000 56.000 0 0 0 138.562 106.888 Z"/>
-  <path class="tail" d="M 150.044 101.625 L 153.009 99.766 A 72.000 72.000 0 0 1 154.557 102.354 L 151.516 104.087 A 68.500 68.500 0 0 0 150.044 101.625 Z"/>
-  <text class="lbl"    x="145.21" y="105.98">T5</text>
-  <text class="lbl-sm" x="145.21" y="108.38">C5</text>
-  <path class="pad-tempo" d="M 142.545 113.891 L 153.376 108.725 A 68.000 68.000 0 0 1 156.000 115.022 L 144.706 119.077 A 56.000 56.000 0 0 0 142.545 113.891 Z"/>
-  <path class="tail" d="M 154.663 110.330 L 157.864 108.916 A 72.000 72.000 0 0 1 159.025 111.700 L 155.766 112.978 A 68.500 68.500 0 0 0 154.663 110.330 Z"/>
-  <text class="lbl"    x="149.23" y="113.95">T6</text>
-  <text class="lbl-sm" x="149.23" y="116.35">C6</text>
-  <path class="pad-tempo" d="M 145.481 121.394 L 156.941 117.835 A 68.000 68.000 0 0 1 158.635 124.443 L 146.876 126.835 A 56.000 56.000 0 0 0 145.481 121.394 Z"/>
-  <path class="tail" d="M 157.985 119.608 L 161.356 118.668 A 72.000 72.000 0 0 1 162.105 121.589 L 158.697 122.387 A 68.500 68.500 0 0 0 157.985 119.608 Z"/>
-  <text class="lbl"    x="152.06" y="122.41">T7</text>
-  <text class="lbl-sm" x="152.06" y="124.81">C7</text>
-  <path class="pad-tempo" d="M 147.311 129.240 L 159.163 127.362 A 68.000 68.000 0 0 1 159.891 134.145 L 147.910 134.825 A 56.000 56.000 0 0 0 147.311 129.240 Z"/>
-  <path class="tail" d="M 159.941 129.266 L 163.412 128.820 A 72.000 72.000 0 0 1 163.734 131.819 L 160.247 132.119 A 68.500 68.500 0 0 0 159.941 129.266 Z"/>
-  <text class="lbl"    x="153.65" y="131.18">T8</text>
-  <text class="lbl-sm" x="153.65" y="133.58">C8</text>
-  <path class="pad-tempo" d="M 147.995 137.267 L 159.994 137.110 A 68.000 68.000 0 0 1 159.741 143.927 L 147.787 142.881 A 56.000 56.000 0 0 0 147.995 137.267 Z"/>
-  <path class="tail" d="M 160.491 139.106 L 163.991 139.162 A 72.000 72.000 0 0 1 163.879 142.176 L 160.385 141.973 A 68.500 68.500 0 0 0 160.491 139.106 Z"/>
-  <text class="lbl"    x="153.96" y="140.10">T9</text>
-  <text class="lbl-sm" x="153.96" y="142.50">C9</text>
-</g>
-<g id="volume">
-  <text class="title" x="62" y="238">音量 Volume</text>
-  <text class="body"  x="62" y="242">7-bit CC 7 · M#3 Ch0–4（弧形 5 片）</text>
-  <path class="pad-vol" d="M 144.623 157.153 L 155.899 161.257 A 68.000 68.000 0 0 1 151.126 171.588 L 140.692 165.661 A 56.000 56.000 0 0 0 144.623 157.153 Z"/>
-  <path class="tail" d="M 154.771 165.424 L 157.978 166.825 A 72.000 72.000 0 0 1 156.713 169.563 L 153.567 168.028 A 68.500 68.500 0 0 0 154.771 165.424 Z"/>
-  <text class="lbl"    x="148.28" y="163.81">V0</text>
-  <text class="lbl-sm" x="148.28" y="166.21">C0</text>
-  <path class="pad-vol" d="M 139.177 168.171 L 149.287 174.636 A 68.000 68.000 0 0 1 142.375 183.677 L 133.485 175.616 A 56.000 56.000 0 0 0 139.177 168.171 Z"/>
-  <path class="tail" d="M 147.277 178.456 L 150.101 180.524 A 72.000 72.000 0 0 1 148.269 182.919 L 145.534 180.736 A 68.500 68.500 0 0 0 147.277 178.456 Z"/>
-  <text class="lbl"    x="141.25" y="175.46">V1</text>
-  <text class="lbl-sm" x="141.25" y="177.86">C1</text>
-  <path class="pad-vol" d="M 131.460 177.736 L 139.915 186.251 A 68.000 68.000 0 0 1 131.197 193.566 L 124.280 183.760 A 56.000 56.000 0 0 0 131.460 177.736 Z"/>
-  <path class="tail" d="M 137.120 189.540 L 139.426 192.174 A 72.000 72.000 0 0 1 137.115 194.112 L 134.922 191.385 A 68.500 68.500 0 0 0 137.120 189.540 Z"/>
-  <text class="lbl"    x="131.85" y="185.29">V2</text>
-  <text class="lbl-sm" x="131.85" y="187.69">C2</text>
-  <path class="pad-vol" d="M 121.841 185.387 L 128.236 195.541 A 68.000 68.000 0 0 1 118.132 200.778 L 113.521 189.700 A 56.000 56.000 0 0 0 121.841 185.387 Z"/>
-  <path class="tail" d="M 124.790 198.142 L 126.466 201.215 A 72.000 72.000 0 0 1 123.788 202.603 L 122.243 199.462 A 68.500 68.500 0 0 0 124.790 198.142 Z"/>
-  <text class="lbl"    x="120.53" y="192.84">V3</text>
-  <text class="lbl-sm" x="120.53" y="195.24">C3</text>
-  <path class="pad-vol" d="M 110.785 190.755 L 114.811 202.060 A 68.000 68.000 0 0 1 103.808 204.967 L 101.724 193.149 A 56.000 56.000 0 0 0 110.785 190.755 Z"/>
-  <path class="tail" d="M 110.881 203.846 L 111.846 207.211 A 72.000 72.000 0 0 1 108.930 207.981 L 108.107 204.579 A 68.500 68.500 0 0 0 110.881 203.846 Z"/>
-  <text class="lbl"    x="107.84" y="197.74">V4</text>
-  <text class="lbl-sm" x="107.84" y="200.14">C4</text>
+  <circle class="hint" cx="105.0" cy="70.0" r="47.0"/>
+  <path class="pad-j" d="M 125.863 63.019 L 147.675 55.721 A 45.000 45.000 0 0 1 147.675 84.279 L 125.863 76.981 A 22.000 22.000 0 0 0 125.863 63.019 Z"/>
+  <path class="tail" d="M 150.478 68.571 L 153.476 68.477 A 48.500 48.500 0 0 1 153.476 71.523 L 150.478 71.429 A 45.500 45.500 0 0 0 150.478 68.571 Z"/>
+  <text class="lbl"    x="138.50" y="69.80">J0</text>
+  <text class="lbl-sm" x="138.50" y="72.30">M#1 C0</text>
+  <path class="pad-j" d="M 124.689 79.816 L 145.272 90.079 A 45.000 45.000 0 0 1 125.079 110.272 L 114.816 89.689 A 22.000 22.000 0 0 0 124.689 79.816 Z"/>
+  <path class="tail" d="M 138.168 101.147 L 140.355 103.201 A 48.500 48.500 0 0 1 138.201 105.355 L 136.147 103.168 A 45.500 45.500 0 0 0 138.168 101.147 Z"/>
+  <text class="lbl"    x="128.69" y="93.49">J1</text>
+  <text class="lbl-sm" x="128.69" y="95.99">M#1 C1</text>
+  <path class="pad-j" d="M 111.981 90.863 L 119.279 112.675 A 45.000 45.000 0 0 1 90.721 112.675 L 98.019 90.863 A 22.000 22.000 0 0 0 111.981 90.863 Z"/>
+  <path class="tail" d="M 106.429 115.478 L 106.523 118.476 A 48.500 48.500 0 0 1 103.477 118.476 L 103.571 115.478 A 45.500 45.500 0 0 0 106.429 115.478 Z"/>
+  <text class="lbl"    x="105.00" y="103.30">J2</text>
+  <text class="lbl-sm" x="105.00" y="105.80">M#1 C2</text>
+  <path class="pad-j" d="M 95.184 89.689 L 84.921 110.272 A 45.000 45.000 0 0 1 64.728 90.079 L 85.311 79.816 A 22.000 22.000 0 0 0 95.184 89.689 Z"/>
+  <path class="tail" d="M 73.853 103.168 L 71.799 105.355 A 48.500 48.500 0 0 1 69.645 103.201 L 71.832 101.147 A 45.500 45.500 0 0 0 73.853 103.168 Z"/>
+  <text class="lbl"    x="81.31" y="93.49">J3</text>
+  <text class="lbl-sm" x="81.31" y="95.99">M#1 C3</text>
+  <path class="pad-j" d="M 84.137 76.981 L 62.325 84.279 A 45.000 45.000 0 0 1 62.325 55.721 L 84.137 63.019 A 22.000 22.000 0 0 0 84.137 76.981 Z"/>
+  <path class="tail" d="M 59.522 71.429 L 56.524 71.523 A 48.500 48.500 0 0 1 56.524 68.477 L 59.522 68.571 A 45.500 45.500 0 0 0 59.522 71.429 Z"/>
+  <text class="lbl"    x="71.50" y="69.80">J4</text>
+  <text class="lbl-sm" x="71.50" y="72.30">M#1 C4</text>
+  <path class="pad-j" d="M 85.311 60.184 L 64.728 49.921 A 45.000 45.000 0 0 1 84.921 29.728 L 95.184 50.311 A 22.000 22.000 0 0 0 85.311 60.184 Z"/>
+  <path class="tail" d="M 71.832 38.853 L 69.645 36.799 A 48.500 48.500 0 0 1 71.799 34.645 L 73.853 36.832 A 45.500 45.500 0 0 0 71.832 38.853 Z"/>
+  <text class="lbl"    x="81.31" y="46.11">J5</text>
+  <text class="lbl-sm" x="81.31" y="48.61">M#1 C5</text>
+  <path class="pad-j" d="M 98.019 49.137 L 90.721 27.325 A 45.000 45.000 0 0 1 119.279 27.325 L 111.981 49.137 A 22.000 22.000 0 0 0 98.019 49.137 Z"/>
+  <path class="tail" d="M 103.571 24.522 L 103.477 21.524 A 48.500 48.500 0 0 1 106.523 21.524 L 106.429 24.522 A 45.500 45.500 0 0 0 103.571 24.522 Z"/>
+  <text class="lbl"    x="105.00" y="36.30">J6</text>
+  <text class="lbl-sm" x="105.00" y="38.80">M#1 C6</text>
+  <path class="pad-j" d="M 114.816 50.311 L 125.079 29.728 A 45.000 45.000 0 0 1 145.272 49.921 L 124.689 60.184 A 22.000 22.000 0 0 0 114.816 50.311 Z"/>
+  <path class="tail" d="M 136.147 36.832 L 138.201 34.645 A 48.500 48.500 0 0 1 140.355 36.799 L 138.168 38.853 A 45.500 45.500 0 0 0 136.147 36.832 Z"/>
+  <text class="lbl"    x="128.69" y="46.11">J7</text>
+  <text class="lbl-sm" x="128.69" y="48.61">M#1 C7</text>
+  <circle class="pad-cue" cx="105.0" cy="70.0" r="18.0"/>
+  <rect class="tail" x="103.50" y="88.50" width="3" height="4"/>
+  <text class="lbl"    x="105.0" y="69.00" font-size="3.5">CUE</text>
+  <text class="lbl-sm" x="105.0" y="72.00">M#1 C8 · N36</text>
 </g>
 <g id="sync">
-  <rect class="pad-btn" x="175.0" y="115.0" width="20.0" height="46.0" rx="10.0" ry="10.0"/>
-  <rect class="tail" x="183.50" y="161.50" width="3" height="4"/>
-  <text class="lbl"    x="185.00" y="136.00" font-size="3.5">SYNC</text>
-  <text class="lbl-sm" x="185.00" y="139.00">M#1 Ch10</text>
-  <text class="lbl-sm" x="185.00" y="141.30">Note 38</text>
+  <rect class="pad-b" x="12.0" y="42.0" width="22.0" height="22.0" rx="2.5"/>
+  <rect class="tail" x="33.00" y="51.50" width="4" height="3"/>
+  <text class="lbl"    x="23.00" y="52.00">SYNC</text>
+  <text class="lbl-sm" x="23.00" y="55.00">M#1 C10</text>
+  <text class="lbl-sm" x="23.00" y="57.30">Note 38</text>
 </g>
 <g id="play">
-  <rect class="pad-play" x="14.0" y="198.0" width="32.0" height="30.0" rx="4" ry="4"/>
-  <rect class="tail" x="28.50" y="228.50" width="3" height="4"/>
-  <polygon class="tri" points="27.00,204.50 27.00,211.50 33.50,208.00"/>
-  <text class="lbl"    x="30.00" y="218.00" font-size="3.5">Play</text>
-  <text class="lbl-sm" x="30.00" y="221.50">M#1 Ch9 / Note 37</text>
+  <rect class="pad-b" x="12.0" y="80.0" width="22.0" height="22.0" rx="2.5"/>
+  <rect class="tail" x="33.00" y="89.50" width="4" height="3"/>
+  <polygon class="hint" points="20.50,83.50 20.50,88.50 26.00,86.00"/>
+  <text class="lbl"    x="23.00" y="93.00">Play</text>
+  <text class="lbl-sm" x="23.00" y="95.50">M#1 C9</text>
+  <text class="lbl-sm" x="23.00" y="97.80">Note 37</text>
 </g>
-<g id="legend" transform="translate(160,175)">
-  <text class="legend-title" x="0" y="0">圖例</text>
-  <rect class="pad-cue" x="0" y="4.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="6.50">CUE（中央主鍵）</text>
-  <rect class="pad-jog" x="0" y="8.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="10.50">Jog 花瓣 J0–J7</text>
-  <rect class="pad-tempo" x="0" y="12.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="14.50">Tempo 弧 T0–T9</text>
-  <rect class="pad-vol" x="0" y="16.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="18.50">Volume 弧 V0–V4</text>
-  <rect class="pad-btn" x="0" y="20.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="22.50">SYNC</text>
-  <rect class="pad-play" x="0" y="24.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="26.50">Play</text>
-  <rect class="pad-p" x="0" y="28.00" width="5" height="3" rx="0.6"/>
-  <text class="body"  x="7" y="30.50">PAD1–4</text>
-  <rect class="tail" x="0" y="34" width="5" height="3"/>
-  <text class="body"  x="7" y="36.5">虛線 = 焊線尾（延伸 3–4 mm）</text>
+<g id="pads">
+  <rect class="pad-p" x="154.0" y="42.0" width="22.0" height="22.0" rx="2"/>
+  <rect class="tail" x="150.00" y="51.50" width="4" height="3"/>
+  <text class="lbl"    x="165.00" y="52.00">PAD1</text>
+  <text class="lbl-sm" x="165.00" y="55.00">M#1 Ch11</text>
+  <text class="lbl-sm" x="165.00" y="57.30">N40</text>
+  <rect class="pad-p" x="180.0" y="42.0" width="22.0" height="22.0" rx="2"/>
+  <rect class="tail" x="176.00" y="51.50" width="4" height="3"/>
+  <text class="lbl"    x="191.00" y="52.00">PAD2</text>
+  <text class="lbl-sm" x="191.00" y="55.00">M#2 Ch10</text>
+  <text class="lbl-sm" x="191.00" y="57.30">N41</text>
+  <rect class="pad-p" x="154.0" y="68.0" width="22.0" height="22.0" rx="2"/>
+  <rect class="tail" x="150.00" y="77.50" width="4" height="3"/>
+  <text class="lbl"    x="165.00" y="78.00">PAD3</text>
+  <text class="lbl-sm" x="165.00" y="81.00">M#2 Ch11</text>
+  <text class="lbl-sm" x="165.00" y="83.30">N42</text>
+  <rect class="pad-p" x="180.0" y="68.0" width="22.0" height="22.0" rx="2"/>
+  <rect class="tail" x="176.00" y="77.50" width="4" height="3"/>
+  <text class="lbl"    x="191.00" y="78.00">PAD4</text>
+  <text class="lbl-sm" x="191.00" y="81.00">M#3 Ch5</text>
+  <text class="lbl-sm" x="191.00" y="83.30">N43</text>
 </g>
-<g id="flow" transform="translate(8,260)">
+<g id="tempo">
+  <text class="title" x="21.5" y="137.0">速度 Tempo — 14-bit CC 14/46 · M#2 Ch0–9</text>
+  <rect class="pad" x="21.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="27.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="28.50" y="151.50">T0</text>
+  <text class="lbl-sm" x="28.50" y="154.50">M#2 C0</text>
+  <rect class="pad" x="38.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="44.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="45.50" y="151.50">T1</text>
+  <text class="lbl-sm" x="45.50" y="154.50">M#2 C1</text>
+  <rect class="pad" x="55.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="61.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="62.50" y="151.50">T2</text>
+  <text class="lbl-sm" x="62.50" y="154.50">M#2 C2</text>
+  <rect class="pad" x="72.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="78.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="79.50" y="151.50">T3</text>
+  <text class="lbl-sm" x="79.50" y="154.50">M#2 C3</text>
+  <rect class="pad" x="89.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="95.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="96.50" y="151.50">T4</text>
+  <text class="lbl-sm" x="96.50" y="154.50">M#2 C4</text>
+  <rect class="pad" x="106.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="112.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="113.50" y="151.50">T5</text>
+  <text class="lbl-sm" x="113.50" y="154.50">M#2 C5</text>
+  <rect class="pad" x="123.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="129.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="130.50" y="151.50">T6</text>
+  <text class="lbl-sm" x="130.50" y="154.50">M#2 C6</text>
+  <rect class="pad" x="140.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="146.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="147.50" y="151.50">T7</text>
+  <text class="lbl-sm" x="147.50" y="154.50">M#2 C7</text>
+  <rect class="pad" x="157.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="163.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="164.50" y="151.50">T8</text>
+  <text class="lbl-sm" x="164.50" y="154.50">M#2 C8</text>
+  <rect class="pad" x="174.50" y="140.0" width="14.0" height="25.0" rx="1.5"/>
+  <rect class="tail" x="180.00" y="165.50" width="3" height="4"/>
+  <text class="lbl"    x="181.50" y="151.50">T9</text>
+  <text class="lbl-sm" x="181.50" y="154.50">M#2 C9</text>
+</g>
+<g id="volume">
+  <text class="title" x="40.0" y="192.0">音量 Volume — 7-bit CC 7 · M#3 Ch0–4</text>
+  <rect class="pad" x="40.00" y="195.0" width="22.0" height="30.0" rx="1.5"/>
+  <rect class="tail" x="49.50" y="225.50" width="3" height="4"/>
+  <text class="lbl"    x="51.00" y="209.00">V0</text>
+  <text class="lbl-sm" x="51.00" y="212.00">M#3 C0</text>
+  <rect class="pad" x="67.00" y="195.0" width="22.0" height="30.0" rx="1.5"/>
+  <rect class="tail" x="76.50" y="225.50" width="3" height="4"/>
+  <text class="lbl"    x="78.00" y="209.00">V1</text>
+  <text class="lbl-sm" x="78.00" y="212.00">M#3 C1</text>
+  <rect class="pad" x="94.00" y="195.0" width="22.0" height="30.0" rx="1.5"/>
+  <rect class="tail" x="103.50" y="225.50" width="3" height="4"/>
+  <text class="lbl"    x="105.00" y="209.00">V2</text>
+  <text class="lbl-sm" x="105.00" y="212.00">M#3 C2</text>
+  <rect class="pad" x="121.00" y="195.0" width="22.0" height="30.0" rx="1.5"/>
+  <rect class="tail" x="130.50" y="225.50" width="3" height="4"/>
+  <text class="lbl"    x="132.00" y="209.00">V3</text>
+  <text class="lbl-sm" x="132.00" y="212.00">M#3 C3</text>
+  <rect class="pad" x="148.00" y="195.0" width="22.0" height="30.0" rx="1.5"/>
+  <rect class="tail" x="157.50" y="225.50" width="3" height="4"/>
+  <text class="lbl"    x="159.00" y="209.00">V4</text>
+  <text class="lbl-sm" x="159.00" y="212.00">M#3 C4</text>
+</g>
+<g id="flow" transform="translate(8,245)">
   <text class="title" x="0" y="0">建議流程（詳見 docs/hardware/08-prototype-assembly.md）</text>
-  <text class="body" x="0" y="5">1. 印這張（100% 比例）→ 量右上校正方塊 = 10 mm → 才往下做。</text>
-  <text class="body" x="0" y="9">2. 銅箔膠帶覆貼每個電極 → 美工刀沿黑實線連紙一起剪。</text>
-  <text class="body" x="0" y="13">3. 撕下貼到壓克力板；焊線尾（虛線片）朝板邊 → 焊 / 導電膠接杜邦線 → 拉到對應 MPR121 腳。</text>
+  <text class="body" x="0" y="5">1. 印 100%（非縮放）→ 量校正方塊 = 10 mm → 才繼續。</text>
+  <text class="body" x="0" y="9">2. 銅箔膠帶貼在紙上每個形狀 → 美工刀沿實線連紙一起剪。</text>
+  <text class="body" x="0" y="13">3. 撕下貼到壓克力板，虛線「焊線尾」朝板邊 → 接杜邦線到對應 MPR121 腳。</text>
   <text class="body" x="0" y="17">4. 30 點全接完 → 跑 06-testing-plan.md Phase 1–4 驗通道。</text>
-  <text class="body" x="0" y="22" font-weight="700">M#1 0x5A: Jog+CUE+Play+SYNC+PAD1 · M#2 0x5B: Tempo+PAD2/3 · M#3 0x5C: Volume+PAD4</text>
+  <text class="body" x="0" y="22" font-weight="700">M#1 0x5A: Jog + CUE + Play + SYNC + PAD1  ·  M#2 0x5B: Tempo + PAD2/3  ·  M#3 0x5C: Volume + PAD4</text>
 </g>
 <rect class="frame" x="5" y="5" width="200" height="287"/>
 </svg>
