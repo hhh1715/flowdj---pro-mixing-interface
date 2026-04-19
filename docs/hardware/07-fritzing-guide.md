@@ -118,7 +118,7 @@ Fritzing 開啟後：
 ### Step 9：加註解
 
 右鍵 → `Add Part Note`（或選 Sketch → Add Note），標註：
-- 「USB-C to PC」（在 Teensy 上方）
+- 「Micro-B USB to PC」（在 Teensy 上方）
 - 「I²C 0x5A」、「0x5B」、「0x5C」（每顆 MPR121 標示）
 - 「Electrodes to conductive ink / copper tape」（在電極線尾）
 

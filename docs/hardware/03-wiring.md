@@ -40,7 +40,7 @@
 **重要判斷：黑色通用模組通常板上已有 10 kΩ pull-up**（焊在板子背面的 SDA/SCL 兩個電阻）。
 
 3 顆並聯時：3 × 10 kΩ = **約 3.3 kΩ 有效 pull-up**。
-- 這仍在 I²C 標準容許範圍（Standard-mode 100 kHz 最小 Rp ≈ 1 kΩ @ 3.3 V，算法見 [TI AN-10216](https://www.ti.com/lit/an/slva689/slva689.pdf)），**多數情況可以直接動**。
+- 這仍在 I²C 標準容許範圍（Standard-mode 100 kHz 最小 Rp ≈ 1 kΩ @ 3.3 V，算法見 [TI SLVA689 — I²C Pull-up Resistor Calculation](https://www.ti.com/lit/an/slva689/slva689.pdf)），**多數情況可以直接動**。
 - 若 I²C 不穩（scanner 抓到亂七八糟位址或抓不到），兩種處理方式：
   1. **拆掉其中 2 顆的板上 pull-up**（用烙鐵把電阻拔掉，只留 1 顆 10 kΩ）
   2. **或在 Teensy 端另外拉一組 4.7 kΩ 到 3.3V**，然後全部 3 顆板上 pull-up 拆掉
@@ -100,9 +100,9 @@ GND      ────────►  ADD   ← 用跳線明確拉到 GND（不�
 
 ---
 
-## 階段 B — 加第 2 顆 MPR121（ADDR → 3.3V）
+## 階段 B — 加第 2 顆 MPR121（ADD → 3.3V）
 
-所有電源線、I²C 線照舊，**ADDR 腳改接到紅 rail（3.3V）**。
+所有電源線、I²C 線照舊，**`ADD` 腳改接到紅 rail（3.3V）**。
 
 ### 接線表
 

@@ -62,9 +62,9 @@ MIDI 1.0 的頻寬優化：連續送同類型訊息時，後面可以省略 stat
 MPR121 走 I²C，Teensy 當 master，每顆 MPR121 是 slave。
 
 ### I²C 位址（Address）
-每個 slave 裝置有獨一無二的 7-bit 位址。Teensy 呼叫某個位址時，只有那顆裝置會回應。MPR121 的 `ADDR` 腳決定它用 4 個位址裡的哪一個：
+每個 slave 裝置有獨一無二的 7-bit 位址。Teensy 呼叫某個位址時，只有那顆裝置會回應。MPR121 的 `ADD` 腳（Adafruit 版絲印為 `ADDR`）決定它用 4 個位址裡的哪一個：
 
-| ADDR 接到 | 位址 |
+| ADD 接到 | 位址 |
 |---|---|
 | GND | 0x5A |
 | VCC | 0x5B |

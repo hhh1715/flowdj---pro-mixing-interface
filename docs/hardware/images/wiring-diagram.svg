@@ -59,7 +59,7 @@
   <!-- ==== Teensy 4.0 (Zone 1) ==== -->
   <rect class="comp" x="90" y="180" width="140" height="230" />
   <text class="comp-title" x="160" y="204" text-anchor="middle">Teensy 4.0</text>
-  <text class="comp-sub" x="160" y="220" text-anchor="middle">USB-C to PC</text>
+  <text class="comp-sub" x="160" y="220" text-anchor="middle">Micro-B USB to PC</text>
 
   <!-- Teensy pin nodes (right side of chip for these pins) -->
   <circle class="node" cx="230" cy="240" r="3.5" /><text class="pin" x="222" y="243" text-anchor="end">3.3V</text>
@@ -204,6 +204,6 @@
   <line class="w-add" x1="870" y1="612" x2="910" y2="612" />
   <text class="legend-text" x="918" y="616">ADD address select (dashed green)</text>
 
-  <text class="note" x="55" y="640">Power: Teensy 4.0 USB-C → PC. Teensy on-board 3.3V regulator supplies 3 MPR121s (≈30 mA total, well within 250 mA limit).</text>
+  <text class="note" x="55" y="640">Power: Teensy 4.0 Micro-B USB → PC. Teensy on-board 3.3V regulator supplies 3 MPR121s (≈30 mA total, well within 250 mA limit).</text>
   <text class="note" x="55" y="656">I²C pull-ups: Adafruit/black-generic MPR121 modules usually include them; no external resistors required unless bus is unstable.</text>
 </svg>
