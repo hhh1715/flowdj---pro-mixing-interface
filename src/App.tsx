@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MOCK_TRACKS, Track } from './types';
+import { MidiMonitor } from './hardware/MidiMonitor';
 
 const PlayPauseIcon = ({ size = 26, color = "currentColor" }: { size?: number, color?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="0" strokeLinecap="round" strokeLinejoin="round">
@@ -860,6 +861,8 @@ export default function App() {
         </div>
       </footer>
 
+      {/* MIDI smoke-test overlay：右下角 panel，pointer-events: none，之後要關掉直接拿掉這行 */}
+      <MidiMonitor />
     </div>
   );
 }
