@@ -72,7 +72,7 @@
 |---|---|---|
 | Arduino IDE | 2.3.8（最低 2.0.4） | 寫 / 編譯 / 上傳 Teensy 韌體 |
 | Teensyduino | 1.60 | Arduino IDE 的 Teensy 支援 |
-| Adafruit_MPR121 library | 1.1.3 | 讀 MPR121 |
+| Adafruit_MPR121 library | 1.2.1（1.1.3+ 皆可） | 讀 MPR121 |
 | Node.js | 18+ | React UI 開發 |
 | Chrome / Edge | 任何近期版本 | Web MIDI 測試（Safari 不支援） |
 

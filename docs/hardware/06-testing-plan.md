@@ -28,7 +28,7 @@
 ### 版本鎖（本手冊驗證過的版本）
 - Arduino IDE **2.3.x**（2.3.8 為 2026 當前；最低 2.0.4）
 - Teensyduino **1.60**（2026 當前）
-- Adafruit_MPR121 library **1.1.3**
+- Adafruit_MPR121 library **1.2.1**（1.1.3+ 皆可）
 
 ### 步驟
 
