@@ -7,7 +7,9 @@
 /home/wise/Downloads/fritzing-1.0.6-l2239-04e5bb02-qt6.AppImage
 ```
 
-本手冊預計花費 **10 分鐘**完成。
+本手冊預計花費 **20–30 分鐘**完成（第一次用 Fritzing）。
+
+> ⚠️ **Fritzing 1.0+ 官方版本需要付費下載**（約 €8 一次性贊助）。如果不想付費，跳到文末「替代方案」章節。
 
 ---
 
@@ -25,19 +27,27 @@ chmod +x ~/Downloads/fritzing-1.0.6-l2239-04e5bb02-qt6.AppImage
 
 ### 2. 下載 Teensy 4.0 零件（Fritzing 內建沒有）
 
-Fritzing 內建零件庫沒有 Teensy 4.0，要從 PJRC / 第三方取得。
+⚠️ 截至 2026 年，**沒有官方或廣泛維護的 Teensy 4.0 Fritzing 零件**。取得方式（依靠譜度排序）：
 
-**推薦：Adafruit 或社群貢獻的 Teensy 4.0 .fzpz 檔**
+1. **PJRC 官方論壇零件分享串**：
+   - https://forum.pjrc.com/ 搜尋「Teensy 4.0 fritzing」
+   - 社群常有人貼自己做的 `.fzpz` 檔
+2. **Fritzing 官方 Parts Submissions 論壇**：
+   - https://forum.fritzing.org/c/parts-submit
+3. **自己做**：用 Fritzing 的 Parts Editor 從「Generic 14×2 DIP」改，花 30 分鐘。參考：https://fritzing.org/learning/tutorials/creating-custom-parts
+4. **用近似零件**：「Generic 14×2 DIP」或「Arduino Pro Mini」代替，在零件屬性對話框自己標 pin（Fritzing 支援 rename pin）
 
-1. 開瀏覽器到 [github.com/bloomlive/fritzing-teensy](https://github.com/bloomlive/fritzing-teensy) 或 [github.com/MCUdude/MightyCore-Fritzing](https://github.com/MCUdude/MightyCore-Fritzing)（Teensy 系列）
-2. 下載 `Teensy_4.0.fzpz`
-3. 在 Fritzing 中：**File → Open**，選擇 `.fzpz` 檔，Fritzing 會把它加進「Mine」分類（右下角零件櫃）
-
-**如果找不到現成的 .fzpz**：可以用外觀類似的「Arduino Pro Mini」或「Generic 14×2 DIP」代替，腳位自己標示即可。
+匯入方式：Fritzing → **File → Open** → 選擇 `.fzpz` 檔，Fritzing 會把它加進「Mine」分類（右下角零件櫃）。
 
 ### 3. MPR121 零件
 
-Fritzing 內建**有** Adafruit MPR121，直接從零件庫搜尋 `MPR121` 即可。外觀是藍色 PCB，你實際用的是黑色，但**腳位功能一樣**，不影響示意圖目的。
+⚠️ **Fritzing 內建零件庫沒有 MPR121**（許多教學寫的是舊版 Fritzing，或根本錯）。取得方式：
+- **Adafruit Fritzing Library**（官方社群最齊）：https://github.com/adafruit/Fritzing-Library
+  - Clone 下來，找 `parts/Adafruit MPR121 12-Key Capacitive Touch Sensor Breakout.fzpz`
+  - 在 Fritzing 中 File → Open 匯入
+- 或 Bare Conductive 的 `.fzpz`（他們的 Touch Board 基於 MPR121）
+
+外觀是藍色 PCB，你實際用的是黑色，但**腳位功能一樣**，不影響示意圖目的。
 
 ---
 
@@ -57,7 +67,7 @@ Fritzing 開啟後：
 ### Step 3：放置 Teensy 4.0
 
 - 從「Mine」或你剛匯入的 Teensy 零件拖進畫布
-- 把 Teensy 跨置麵包板中央溝槽上（USB 那端朝左）
+- 把 Teensy 跨置麵包板中央溝槽上（**Micro-B USB 端朝左**，不是 USB-C）
 - 讓左排 Pin 位於麵包板**左半邊的 E 列**，右排在 **F 列**
 
 ### Step 4：放置 3 顆 MPR121
@@ -77,9 +87,9 @@ Fritzing 開啟後：
 
 ### Step 6：拉 I²C 線（藍黃）
 
-建議用顏色區分：
+建議用顏色區分（要跟 repo 內 `wiring-diagram.svg` 一致）：
 - **藍線** = SDA
-- **黃線**（或橘）= SCL
+- **橘線** = SCL（不要用黃色，會跟正電源線混淆）
 
 在 Fritzing 要改顏色：右鍵點線 → `Color` → 選顏色。
 
@@ -93,6 +103,8 @@ Fritzing 開啟後：
 - MPR121 #1 `ADD` → **GND rail**（位址 0x5A）
 - MPR121 #2 `ADD` → **3.3V rail**（位址 0x5B）
 - MPR121 #3 `ADD` → **連到 SDA 線上任一節點**（位址 0x5C）
+
+💡 **在 Fritzing 把一條線接到另一條線中段：** 右鍵點目標線 → `Add Bendpoint`，然後從 `ADD` 腳拉新線到那個 bendpoint。
 
 ### Step 8：加電極（用杜邦線代表）
 
@@ -116,7 +128,7 @@ Fritzing 開啟後：
 - 存到 `docs/hardware/images/wiring-diagram-fritzing.png`
 - 解析度建議 300 DPI 以上（Fritzing 預設夠）
 
-也可以同時存 `.fz` 原始檔到 `docs/hardware/wiring.fz`，未來要改時直接打開。
+也可以同時存 `.fzz` 原始檔（Fritzing 的正確副檔名是 **`.fzz`**，不是 `.fz`）到 `docs/hardware/wiring.fzz`，未來要改時直接打開。
 
 ---
 
@@ -145,7 +157,7 @@ Fritzing 開啟後：
 
 ```markdown
 | `images/wiring-diagram-fritzing.png` | Fritzing 風格麵包板接線圖 |
-| `wiring.fz` | Fritzing 原始檔 |
+| `wiring.fzz` | Fritzing 原始檔 |
 ```
 
 ---
@@ -166,8 +178,35 @@ sudo apt install libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0
 
 ---
 
+## 替代方案（不想付費買 Fritzing）
+
+Fritzing 1.0+ 官方版本需要付費下載。免費替代：
+
+### 1. [Wokwi](https://wokwi.com/)（推薦）
+- 線上工具，免費
+- 有 Arduino/ESP32/Raspberry Pi Pico 模擬器
+- 沒有原生 Teensy 4.0，但有 Arduino Mega / Uno 可以代替畫示意圖
+- 匯出 PNG 很乾淨
+
+### 2. [KiCad](https://www.kicad.org/)（完全免費開源）
+- 業界標準 EDA 工具
+- 學習曲線比 Fritzing 陡，但做得出專業 schematic
+- 有 Teensy 4.0 符號（社群庫）
+
+### 3. [CircuitLab](https://www.circuitlab.com/)（免費版可用）
+- 瀏覽器內，無需安裝
+- 不畫麵包板，只畫 schematic（對本專案其實更清楚）
+
+### 4. 直接用現有的 SVG
+本 repo 已有 [images/wiring-diagram.svg](images/wiring-diagram.svg)，繪製所有接線。GitHub 能直接渲染。Fritzing 的「麵包板照相機風格」只是美術加分，不是必需。
+
+---
+
 ## 參考資料
 
 - [Fritzing 官網](https://fritzing.org/)
-- [Fritzing 教學影片（30 分鐘入門）](https://fritzing.org/learning/)
-- [Teensy fzpz 零件下載 — bloomlive](https://github.com/bloomlive/fritzing-teensy)
+- [Fritzing 教學影片](https://fritzing.org/learning/)
+- [Adafruit Fritzing Library（含 MPR121 零件）](https://github.com/adafruit/Fritzing-Library)
+- [Fritzing 自製零件教學](https://fritzing.org/learning/tutorials/creating-custom-parts)
+- [PJRC 論壇（找 Teensy 社群零件）](https://forum.pjrc.com/)
+- [Fritzing Parts Submissions 論壇](https://forum.fritzing.org/c/parts-submit)

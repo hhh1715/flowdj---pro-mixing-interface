@@ -24,6 +24,8 @@ MIDI 原本走 5-pin DIN 接頭；USB MIDI 是用 USB 傳輸同樣訊息的規�
 - CCNumber：0–127（每個號碼有慣例用途，例如 CC7 = 主音量）
 - Value：0–127（7-bit 解析度 = 128 階）
 
+💡 **類比：** Note On/Off 像電燈開關（只有 0/1），CC 像調光旋鈕（可以是任何亮度）。
+
 ### 14-bit CC
 標準 CC 只有 128 階，對 BPM、pitch 不夠細。把兩個 CC 組合起來（MSB + LSB）可達到 16384 階。
 慣例：CCn 是高位（MSB），CCn+32 是低位（LSB）。例如 CC14（MSB）+ CC46（LSB）配對。
@@ -31,10 +33,22 @@ MIDI 原本走 5-pin DIN 接頭；USB MIDI 是用 USB 傳輸同樣訊息的規�
 ### MSB / LSB
 - **MSB** = Most Significant Byte（高位）
 - **LSB** = Least Significant Byte（低位）
-- 14-bit 值 = MSB × 128 + LSB
+- 14-bit 值 = MSB × 128 + LSB（×128 不是 ×256，因為 MIDI 資料位元組只有 **7-bit**；最高 bit 保留給 status 標記）
 
 ### Channel（MIDI 頻道）
-MIDI 有 16 個頻道（1–16，程式裡通常寫 0–15）。一般單一 deck 用 Channel 1；未來若做兩個 deck，deck 2 用 Channel 2。
+MIDI 有 16 個頻道（1–16）。**Teensy `usbMIDI` API 用 1-based（1–16）**；只有在你手寫 raw status byte 時才會碰到 0-based 編碼（例如 `0x90` = Note On Channel 1）。一般單一 deck 用 Channel 1；未來若做兩個 deck，deck 2 用 Channel 2。
+
+### Web MIDI API
+瀏覽器用來讀寫 MIDI 裝置的標準 JavaScript API。入口是 `navigator.requestMIDIAccess()`。
+- **支援**：Chrome 43+、Edge 79+、Opera 30+、Firefox 134+（2025-01 起預設開啟）
+- **不支援**：Safari（2026 仍未實作）
+- 文件：https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API
+
+### Class Compliant
+指 USB 裝置遵守 USB-IF 訂的標準 class（例如 MIDI class）。OS 會用內建驅動處理，不用安裝廠商驅動。Teensy 4.0 的 USB MIDI 是 Class Compliant，所以 Win/Mac/Linux 都免驅動。
+
+### Running Status
+MIDI 1.0 的頻寬優化：連續送同類型訊息時，後面可以省略 status byte 只送 data bytes。你用 `usbMIDI.sendNoteOn()` 不用管這個，library 會處理。
 
 ---
 
@@ -58,7 +72,7 @@ MPR121 走 I²C，Teensy 當 master，每顆 MPR121 是 slave。
 | SCL | 0x5D |
 
 ### Pull-up 電阻
-I²C 線平常應維持在高電位（HIGH），由 pull-up 電阻把線拉高；裝置要送 0 時才主動把線拉低。**SDA 和 SCL 各需要一顆 4.7 kΩ 電阻接到 3.3V**（只要一組，多顆 MPR121 共用）。Adafruit MPR121 breakout 板上**已經內建** pull-up，所以實務上可能不用外接，但若 I²C 不穩要檢查。
+I²C 線平常應維持在高電位（HIGH），由 pull-up 電阻把線拉高；裝置要送 0 時才主動把線拉低。**SDA 和 SCL 各需要一顆 4.7–10 kΩ 電阻接到 3.3V**（只要一組，多顆 MPR121 共用）。Adafruit MPR121 跟黑色通用 MPR121 breakout 板上**通常內建 10 kΩ** pull-up，3 顆並聯變 ~3.3 kΩ，仍在 I²C 規格內，實務上不用外接。若 I²C 不穩，量 SDA→3.3V 的阻值檢查。
 
 ---
 
@@ -79,10 +93,17 @@ NXP 做的 **12-channel capacitive touch sensor IC**。特色：
 MPR121 的靈敏度設定。baseline 跟當前讀值的差超過 touch threshold → 判定「按下」；差小於 release threshold → 判定「放開」。Adafruit 預設 12 / 6，可調整。
 
 ### Baseline
-MPR121 持續追蹤的「沒按」時的電容值。環境溫度、濕度變時 baseline 會漂移，MPR121 自動校正。
+MPR121 持續追蹤的「沒按」時的電容值。環境溫度、濕度變時 baseline 會漂移，MPR121 自動校正（時間常數約 10 秒）。
 
 ### Filtered Data
 MPR121 讀到的原始電容值經濾波後的 10-bit 數字（0–1023）。我們用它來做質心演算法（強度權重）。
+
+### Baseline `<< 2` 陷阱 ⚠️
+MPR121 的 baseline 暫存器內部是 **8-bit**，filtered data 是 **10-bit**。Adafruit library 的 `baselineData()` 方法**已經把值左移 2 位**還原到 10-bit（見 [Adafruit_MPR121.cpp](https://github.com/adafruit/Adafruit_MPR121/blob/master/Adafruit_MPR121.cpp)）。所以在你的程式碼裡：
+```cpp
+int delta = (int)cap.baselineData(i) - (int)cap.filteredData(i);  // ✅
+int delta = ((int)cap.baselineData(i) << 2) - (int)cap.filteredData(i);  // ❌ 會乘 4 倍
+```
 
 ### Baseline Delta
 `baseline - filtered data`。這才是「手指造成的變化量」，質心演算法用這個當權重。
@@ -99,23 +120,35 @@ centroid = Σ(positionᵢ × weightᵢ) / Σ(weightᵢ)
 用來把「幾個離散 pad 的強度」轉成「一個連續位置」。詳見 [05-centroid-algorithm.md](05-centroid-algorithm.md)。
 
 ### Vector Sum（向量和）
-二維位置加權平均。每個電極視為一個向量（方向 = 它在圓上的角度，長度 = 強度），全部相加得到「平均指向的方向」。用在 Jog Wheel。
+二維位置加權平均。每個電極視為一個向量（方向 = 它在圓上的角度，長度 = 強度），全部相加得到「平均指向的方向」。用在 Jog Wheel。數學上等同「circular mean」（[Wikipedia](https://en.wikipedia.org/wiki/Circular_mean)）。
+
+### EMA（Exponential Moving Average）
+指數移動平均，一種低通濾波器。公式 `ema_new = α × raw + (1 − α) × ema_old`，α 越小越平滑但反應越慢。DJ 用途建議 α = 0.2–0.4。取樣 100 Hz 時 α = 0.3 對應約 5 Hz 截止頻率。
+
+### Noise Threshold
+質心演算法裡的「忽略小訊號」閾值。`weight = max(0, delta - noise_threshold)`。建議起點 3–5；誤觸多 → 調高，邊緣 pad 感應不到 → 調低。注意這跟 MPR121 的 touch/release threshold **不同層級**：noise_threshold 是你自己在軟體裡加的二次過濾。
 
 ---
 
 ## 電氣名詞
 
 ### VCC / 3.3V / 5V
-電源正極。MPR121 的 `VIN` 接 3.3V 或 5V 都可以（板上有 regulator），`3Vo` 是 regulator 輸出的 3.3V（可輸出給其他裝置用）。**Teensy 4.0 本身是 3.3V 邏輯，絕對不能把 5V 輸入接到 Teensy 的 I/O 腳**，會燒掉。
+電源正極。**Adafruit 版** MPR121 的 `VIN` 接 3.3V 或 5V 都可以（板上有 regulator），`3Vo` 是 regulator 輸出。**黑色通用版**（本專案用）只有 `3.3V` 腳且**沒有 regulator**，只能接 3.3V。**Teensy 4.0 本身是 3.3V 邏輯，絕對不能把 5V 輸入接到 Teensy 的 I/O 腳**，會燒掉。
 
 ### GND
-接地 / 電源負極。所有共用同一個 GND，否則 I²C 不會動。
+接地 / 電源負極。所有裝置必須共用同一個 GND，否則 I²C 不會動。
 
 ### I²C Pull-up
 見上方「Pull-up 電阻」。
 
 ### Breadboard（麵包板）
 免焊接的塑膠板，有一格一格的金屬夾可以插元件。本專案的 Teensy + 3×MPR121 先在麵包板上搭，確認都 work 才考慮焊 PCB 或洞洞板。
+
+### Breakout Board（轉接板）
+把一顆 surface-mount 小 IC（例如 MPR121 只有 3×3 mm）焊到一塊有 0.1 吋間距排針的小 PCB 上，方便插麵包板用。本專案的 3 顆 MPR121 就是以 breakout 形式使用。
+
+### Decoupling Capacitor（去耦電容）
+接在 IC 的 VCC 跟 GND 之間（通常 0.1 µF 陶瓷）。抑制電源噪聲、穩定 IC 運作。選配但推薦。
 
 ---
 

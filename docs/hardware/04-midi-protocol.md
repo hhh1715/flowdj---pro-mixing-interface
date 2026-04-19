@@ -4,11 +4,29 @@
 
 ## 通則
 
-- **MIDI Channel**：1（程式碼裡是 0，human-readable 是 1）
+- **MIDI Channel**：1（Teensy 的 `usbMIDI` API 用 **1-based** 編號，0x90 status byte 的 channel nibble 才是 0-based，但你寫程式用不到這層細節）
 - **單 deck 模式**：所有訊息都在 Channel 1。未來做 2 個 deck 時，deck 2 用 Channel 2。
 - **Note On velocity 慣例**：
   - 按下 → `Note On, velocity = 127`
-  - 放開 → `Note Off`（或 `Note On, velocity = 0`，效果一樣）
+  - 放開 → `Note Off, velocity = 0`（或 `Note On velocity = 0`；依 MIDI 1.0 標準視為等效）
+
+### Teensy `usbMIDI` channel 編號小抄
+
+```cpp
+usbMIDI.sendNoteOn(36, 127, 1);   // ✅ Channel 1（對的）
+usbMIDI.sendNoteOn(36, 127, 0);   // ❌ Channel 0 是無效的
+```
+
+Teensy API 參考：https://www.pjrc.com/teensy/td_midi.html
+
+**同時注意：** 主迴圈裡**必須**呼叫 `usbMIDI.read()`，即使不讀 MIDI 輸入也要呼叫（清 USB inbox，避免 host 端塞住）：
+
+```cpp
+void loop() {
+  // ... 送 MIDI ...
+  while (usbMIDI.read()) {} // 每圈清一次 inbox
+}
+```
 
 ---
 
@@ -32,10 +50,12 @@
 
 | 元件 | CC Number | 解析度 | 範圍 | 說明 |
 |---|---|---|---|---|
-| 速度 slider MSB | 14 | 7-bit 高位 | 0–127 | 跟 CC 46 配對成 14-bit |
-| 速度 slider LSB | 46 | 7-bit 低位 | 0–127 | `(MSB × 128 + LSB)` = 0–16383 |
-| 音量 fader | 7 | 7-bit | 0–127 | 標準 MIDI 主音量 CC |
+| 速度 slider MSB | 14 | 7-bit 高位 | 0–127 | 跟 CC 46 配對成 14-bit（CC 14 在 MIDI 1.0 spec 中是 "Undefined"，拿來自訂 OK） |
+| 速度 slider LSB | 46 | 7-bit 低位 | 0–127 | `(MSB × 128 + LSB)` = 0–16383；LSB 編號 = MSB 編號 + 32（MIDI 14-bit 慣例） |
+| 音量 fader | 7 | 7-bit | 0–127 | 標準 MIDI Channel Volume，所有 DJ 軟體都認 |
 | Jog 旋轉速度 | 16 | 7-bit（相對） | 1–127 | 64=不動, >64=順時針, <64=逆時針。偏離 64 越遠 = 越快 |
+
+📖 MIDI 訊息完整對照：https://midi.org/summary-of-midi-1-0-messages
 
 ---
 
@@ -194,3 +214,59 @@ function updateTempo() {
 | 推 volume 到中 | `[B0 07 40]` (CC 7 val=64) |
 
 （訊息格式為 16 進位，3-byte MIDI 標準）
+
+---
+
+## PC 端 MIDI Monitor 工具（必備）
+
+開發時沒裝 MIDI monitor 幾乎無法 debug。以下是三個 OS 都能用的免費工具：
+
+### Windows
+- **MIDI-OX**（經典）：http://www.midiox.com/
+- **Pocket MIDI**（輕量、上手快）：https://www.morson.jp/pocketmidi-webpage/
+
+### macOS
+- **MIDI Monitor by Snoize**（免費、好看）：https://www.snoize.com/midimonitor/
+- **ProtoKol**：https://hautetechnique.com/midi/protokol/
+
+### Linux
+```bash
+sudo apt install alsa-utils
+aconnect -l                      # 列出 MIDI 裝置（找到 Teensy 的 client id）
+aseqdump -p <client_id>          # 監看訊息
+# 或
+amidi -l                         # 列出
+amidi -p hw:1,0,0 -d             # dump（裝置編號對照 -l 結果）
+```
+
+### 瀏覽器內（跨平台、不用裝）
+直接打開以下網頁授權 MIDI 即可看訊息：
+- https://studiocode.dev/resources/midi-monitor/
+- https://www.onlinemusictools.com/webmiditest/
+
+---
+
+## 瀏覽器 Web MIDI 支援（2026 現況）
+
+| 瀏覽器 | 支援狀態 | 備註 |
+|---|---|---|
+| Chrome / Edge / Opera | ✅ 完整支援（43+ / 79+ / 30+） | 業界標準，授權後即可用 |
+| **Firefox** | ✅ **134+（2025-01 起）預設開啟** | 108–133 需 `about:config` 開 flag `dom.webmidi.enabled` |
+| **Safari** | ❌ **完全不支援**（macOS / iOS 全版本） | 2026 年仍未實作 |
+
+驗證來源：https://caniuse.com/midi
+
+**給 FlowDJ 的意義：**
+- 開發 / Demo 用 Chrome 或 Edge 最穩
+- 若使用者用 Safari → Web UI 要顯示 "請改用 Chrome" 的 fallback UI
+- 最終包 Electron 時沒這問題（Electron 內建 Chromium，一定支援）
+
+---
+
+## 參考資源
+
+- [MIDI 1.0 訊息總表（官方，免費）](https://midi.org/summary-of-midi-1-0-messages)
+- [Status byte 完整清單](https://midi.org/expanded-messages-list-status-bytes)
+- [Teensy USB MIDI 官方文件](https://www.pjrc.com/teensy/td_midi.html)
+- [Web MIDI API（MDN）](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API)
+- [Mixxx MIDI Controller Mapping 格式](https://github.com/mixxxdj/mixxx/wiki/MIDI-Controller-Mapping-File-Format)（若之後想寫 Mixxx mapping 檔讓控制器直接跑 Mixxx）

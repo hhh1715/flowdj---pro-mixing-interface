@@ -25,20 +25,35 @@
 ### 目標
 裝好所有軟體，確定 Teensy 能燒程式。
 
+### 版本鎖（本手冊驗證過的版本）
+- Arduino IDE **2.3.x**（2.3.8 為 2026 當前；最低 2.0.4）
+- Teensyduino **1.60**（2026 當前）
+- Adafruit_MPR121 library **1.1.3**
+
 ### 步驟
 
-1. **裝 Arduino IDE**（2.x 版） [下載頁面](https://www.arduino.cc/en/software)
-2. **裝 Teensyduino** 擴充 [下載頁面](https://www.pjrc.com/teensy/td_download.html)
-3. 開 Arduino IDE，**Tools → Board → Teensy 4.0**
-4. **Tools → USB Type → Serial + MIDI**
-5. **裝 Adafruit MPR121 library**：Tools → Manage Libraries → 搜尋 `Adafruit_MPR121` → Install
-6. 把 Teensy 用 USB 線接 PC
-7. 燒個「板載 LED 閃爍」範例（File → Examples → Basics → Blink）確認燒錄流程 OK
-   - 注意要按 Teensy 上的 PROGRAM 按鈕才會燒
+1. **裝 Arduino IDE** 2.3+： [arduino.cc/en/software](https://www.arduino.cc/en/software)
+2. **裝 Teensyduino** 1.60： [pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
+   - 安裝時會自動偵測 Arduino IDE 位置並灌 Teensy 支援檔
+3. **(Linux 必做) 裝 udev rules**：不裝的話 Arduino IDE 上傳會 permission denied：
+   ```bash
+   curl -L https://www.pjrc.com/teensy/00-teensy.rules \
+     | sudo tee /etc/udev/rules.d/00-teensy.rules
+   sudo udevadm control --reload-rules
+   ```
+   裝完把 Teensy 拔掉重插。
+4. 開 Arduino IDE，**Tools → Board → Teensy → Teensy 4.0**
+5. **Tools → USB Type → `Serial + MIDI`**（兩者都要，Serial 用於 debug、MIDI 用於送訊號）
+6. **Tools → Port → 選 Teensy 對應的 port**（插 USB 後會出現）
+7. **裝 Adafruit MPR121 library**：Tools → Manage Libraries → 搜尋 `Adafruit_MPR121` → Install（裝 1.1.3）
+8. 把 Teensy 用 **Micro-B USB 線**接 PC（不是 USB-C！）
+9. 燒個「板載 LED 閃爍」範例（File → Examples → 01.Basics → Blink）確認燒錄流程 OK
 
 ### 驗收
 - [ ] Arduino IDE 看得到 Teensy 4.0 選項
+- [ ] Tools → Port 有顯示 Teensy 裝置
 - [ ] Blink 範例燒完，板載橘色 LED 每秒閃一次
+- [ ] Linux：`ls /dev/ttyACM*` 或 `dmesg | tail` 能看到 Teensy 被辨識
 
 ---
 
@@ -63,7 +78,7 @@ void setup() {
 
 void loop() {
   byte found = 0;
-  for (byte addr = 1; addr < 127; addr++) {
+  for (byte addr = 1; addr <= 127; addr++) {
     Wire.beginTransmission(addr);
     if (Wire.endTransmission() == 0) {
       Serial.print("  Found device at 0x");
@@ -98,9 +113,10 @@ Total devices: 3
 | 看到什麼 | 原因 | 檢查 |
 |---|---|---|
 | Total devices: 0 | SDA/SCL 根本沒通 | 線路、Teensy USB、Pin 18/19 |
-| Total devices: 1（只 0x5A） | 另外兩顆 ADDR 腳接錯 | #2 的 ADDR 是否真的接到 3.3V、#3 是否接到 SDA |
-| 看到 0x5D（不該有） | 可能第 4 顆 MPR121 ADDR 接到 SCL 了 | 確認每顆 ADDR 接法 |
-| 看到一堆亂七八糟位址 | I²C pull-up 沒有或過弱 | 外加 4.7kΩ pull-up |
+| Total devices: 1（只 0x5A） | 另外兩顆 `ADD` 腳接錯 | #2 的 `ADD` 是否真的接到 3.3V、#3 是否接到 SDA |
+| 看到 0x5D（不該有） | 某顆 MPR121 的 `ADD` 接到 SCL 了 | 確認每顆 `ADD` 接法 |
+| 看到一堆亂七八糟位址 | I²C pull-up 沒有或過弱 | 量 SDA→3.3V 阻值；若 > 50 kΩ 要加外部 4.7 kΩ pull-up |
+| 看到 0x5A 但位址會變動 | `ADD` 懸空、浮接 | 用跳線明確拉到 GND |
 
 **全部 ✓ 才繼續下一階段。**
 
@@ -232,7 +248,7 @@ void loop() {
 
 ### PC 端準備 MIDI Monitor
 
-選一個你 OS 對應的：
+選一個你 OS 對應的（詳細工具列表見 [04-midi-protocol.md](04-midi-protocol.md)）：
 
 **Linux：**
 ```bash
@@ -241,14 +257,20 @@ sudo apt install alsa-utils
 
 # 列出 MIDI 裝置
 aconnect -l
+# 或
+amidi -l
 
 # 監看（找到 Teensy 的 client ID，假設是 20）
 aseqdump -p 20
 ```
 
-**macOS：**下載 [MIDI Monitor](https://www.snoize.com/midimonitor/)（免費）
+**macOS：** [MIDI Monitor by Snoize](https://www.snoize.com/midimonitor/)（免費）
 
-**Windows：**下載 [MIDI-OX](http://www.midiox.com/)（免費）
+**Windows：** [MIDI-OX](http://www.midiox.com/) 或 [Pocket MIDI](https://www.morson.jp/pocketmidi-webpage/)（都免費）
+
+**跨平台（瀏覽器，不用裝）：**
+- https://studiocode.dev/resources/midi-monitor/
+- https://www.onlinemusictools.com/webmiditest/
 
 ### 操作
 1. 燒錄 Teensy
@@ -288,7 +310,8 @@ const float JOG_ANGLES[8] = {0, 45, 90, 135, 180, 225, 270, 315};
 float readSliderCentroid(Adafruit_MPR121 &cap, int start, int n) {
   long ws = 0, wsum = 0;
   for (int i = 0; i < n; i++) {
-    int delta = ((int)cap.baselineData(start + i) << 2) - (int)cap.filteredData(start + i);
+    // Adafruit_MPR121::baselineData() 已內部 << 2，外部不要再 shift
+    int delta = (int)cap.baselineData(start + i) - (int)cap.filteredData(start + i);
     int w = max(0, delta - 3);
     ws += (long)i * w;
     wsum += w;
@@ -300,7 +323,7 @@ float readSliderCentroid(Adafruit_MPR121 &cap, int start, int n) {
 float readJogAngle(Adafruit_MPR121 &cap) {
   float sx = 0, sy = 0; long ws = 0;
   for (int i = 0; i < JOG_N; i++) {
-    int delta = ((int)cap.baselineData(JOG_CH_START + i) << 2) - (int)cap.filteredData(JOG_CH_START + i);
+    int delta = (int)cap.baselineData(JOG_CH_START + i) - (int)cap.filteredData(JOG_CH_START + i);
     int w = max(0, delta - 3);
     float r = JOG_ANGLES[i] * M_PI / 180.0;
     sx += cos(r) * w; sy += sin(r) * w; ws += w;
@@ -402,11 +425,13 @@ useEffect(() => {
 - [ ] 按按鈕 → 訊息符合 [04-midi-protocol.md](04-midi-protocol.md) 的對應
 - [ ] 滑 slider → 看到連續的 CC 14/46
 
-### 瀏覽器限制
-- Chrome / Edge / Opera：支援 Web MIDI，需使用者第一次授權
-- Safari (macOS 14+)：支援
-- Firefox：**不支援**（到 2026 為止）→ Demo 用 Chrome
-- 之後若要包 Electron，Electron 內建 Chromium 所以 Web MIDI 一定能用
+### 瀏覽器限制（2026 現況，來源：https://caniuse.com/midi）
+- **Chrome / Edge / Opera**：✅ 完整支援，需使用者第一次授權
+- **Firefox 134+**（2025-01 起）：✅ 預設開啟；108–133 需在 `about:config` 把 `dom.webmidi.enabled` 設成 true
+- **Safari**：❌ **完全不支援**（macOS 跟 iOS 全版本，2026 仍未實作）→ Demo 必須用 Chrome/Edge/Firefox
+- **Electron**：內建 Chromium 所以 Web MIDI 一定能用，最終打包用這條路
+
+若使用者用 Safari，UI 要顯示 fallback 訊息（例如「請用 Chrome 開啟」）。
 
 ---
 
@@ -416,7 +441,7 @@ useEffect(() => {
 
 ### 步驟
 
-1. **把銅箔電極貼到壓克力/3D 列印件上**（按 [要完成功能部份.png](../../../../Desktop/DJ/要完成功能部份.png) 的形狀）
+1. **把銅箔電極貼到壓克力/3D 列印件上**（按 [目標 deck 版型](images/deck-layout-target.png) 的形狀）
 2. **把氣墊蓋上去**
 3. **重新跑一次 Phase 2** 驗證每個電極還能觸發
    - 銅箔面積大 → 靈敏度可能**太敏感**，把 `cap.setThresholds(touch, release)` 的 touch 往上調（例如 20/10）

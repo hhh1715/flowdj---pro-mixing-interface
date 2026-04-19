@@ -7,7 +7,8 @@
 | MCU | NXP i.MX RT1062 (ARM Cortex-M7) |
 | 時脈 | 600 MHz |
 | 邏輯電壓 | **3.3V**（I/O 不可接 5V，會燒） |
-| 供電方式 | USB-C 5V（板上 regulator 降壓到 3.3V） |
+| 供電方式 | **Micro-B USB** 5V（板上 regulator 降壓到 3.3V） |
+| USB 接頭 | **Micro-B**（⚠️ 不是 USB-C！買線時別買錯） |
 | Flash | 2 MB |
 | RAM | 1 MB |
 | USB | 480 Mbps（高速） |
@@ -29,8 +30,8 @@
 
 | Teensy 腳位 | 功能 | 本專案用途 |
 |---|---|---|
-| **USB** | Type-C USB 2.0 | 供電 + USB MIDI 資料 |
-| **3.3V** | 3.3V 電源輸出（最大 ~250 mA） | 接到 3 顆 MPR121 的 VIN |
+| **USB** | **Micro-B** USB 2.0 High Speed（480 Mbps） | 供電 + USB MIDI 資料 |
+| **3.3V** | 3.3V 電源輸出（最大 ~250 mA） | 接到 3 顆 MPR121 的 `3.3V` 腳（黑色通用板；Adafruit 叫 `VIN`） |
 | **GND** | 接地 | 全部共用 GND |
 | **Pin 18** | SDA0（Wire） | 接到 3 顆 MPR121 的 SDA（並聯） |
 | **Pin 19** | SCL0（Wire） | 接到 3 顆 MPR121 的 SCL（並聯） |
@@ -40,31 +41,38 @@
 - **Pin 16**：SCL1（Wire1）
 - **Pin 0/1**：若要接 MPR121 的 IRQ 中斷線（**本專案不用**，我們用 polling 不用中斷）
 
-## 腳位位置記憶訣竅
+## 腳位位置怎麼找
 
-Teensy 4.0 是**上視圖 14 孔 × 2 排** 的 DIP 格式。從 USB 端開始，**右邊**那排由上到下是 Pin 0 → 13；**左邊**那排由下到上是 Pin 14 → 23。
+⚠️ **不要看下面隨便畫的圖就開工**。以 PJRC 官方腳位卡為準：
 
-簡化圖：
+- 📄 **官方正面卡（PDF）**：https://www.pjrc.com/teensy/card10a_rev2_web.pdf
+- 📄 **官方背面卡（PDF）**：https://www.pjrc.com/teensy/card10b_rev2_web.pdf
+- 🖼️ **本 repo 圖片**：[images/teensy-4.0-pinout-front.png](images/teensy-4.0-pinout-front.png)、[images/teensy-4.0-pinout-back.png](images/teensy-4.0-pinout-back.png)
+- 🌐 **互動式腳位圖**：https://teensy40.pinout.xyz/
+
+本專案**實際只會用到 4 個腳位**，對照官方卡認出以下位置就好：
 
 ```
-         ┌──── USB-C ────┐
-    GND ─┤ 0          23 ├─ 3.3V
-         ┤ 1          22 │
-         ┤ 2          21 │
-         ┤ 3          20 │
-         ┤ 4          19 │── SCL0  ← 本專案
-         ┤ 5          18 │── SDA0  ← 本專案
-         ┤ 6          17 │   (SDA1 備用)
-         ┤ 7          16 │   (SCL1 備用)
-         ┤ 8          15 │
-         ┤ 9          14 │
-         ┤10          13 │── 板載 LED（測試用）
-         ┤11          12 │
-         ┤12 Vin GND 3.3V│── 3.3V 電源輸出 ← 本專案
-         └───────────────┘
+USB（Micro-B）端朝上，正面朝你看：
+
+  左排（從上到下）         右排（從上到下）
+  ┌──────────────┐        ┌──────────────┐
+  │ GND          │        │ 3.3V         │  ← 3.3V 電源輸出（給 MPR121）
+  │ Pin 0        │        │ Pin 23       │
+  │ Pin 1        │        │ Pin 22       │
+  │ ...          │        │ ...          │
+  │ Pin 5        │        │ Pin 19 ← SCL0 │  ← I²C 時脈（接 MPR121 SCL）
+  │ Pin 6        │        │ Pin 18 ← SDA0 │  ← I²C 資料（接 MPR121 SDA）
+  │ ...          │        │ ...          │
+  │ Pin 12       │        │ Pin 13 (LED) │
+  └──────────────┘        └──────────────┘
+       └────── 板子尾端（非 USB 端）有額外 Vin / GND / 3.3V / program pad ──────┘
 ```
 
-**重點：3.3V 跟 GND 在板子尾端（離 USB 最遠那端）；SDA/SCL 在右排中段（Pin 18/19）。**
+**要用的 4 個腳位**：`3.3V`（右排最頂）、`GND`（左排最頂）、`Pin 18 / Pin 19`（右排中段偏下）。
+實體位置在板子上有白色絲印標示，每一顆都會寫 `3.3`、`GND`、`18`、`19`。
+
+> 若拿到 Teensy 4.1（更大、多一些腳位），Pin 18/19 位置**相同**，但板型不一樣，請改看 [card11a_rev2_web.pdf](https://www.pjrc.com/teensy/card11a_rev2_web.pdf)。
 
 ---
 
@@ -86,17 +94,41 @@ Teensy 4.0 是**上視圖 14 孔 × 2 排** 的 DIP 格式。從 USB 端開始�
 
 Teensy 不能直接用 Arduino IDE 原生支援，需要裝 PJRC 的 Teensyduino 擴充。
 
-**安裝步驟：**
-1. 先裝 Arduino IDE（建議 2.x 版）
-2. 到 [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html) 下載 Teensyduino 安裝包（Win/Mac/Linux 都有）
-3. 執行安裝，會把 Teensy 板子支援檔加進 Arduino IDE
-4. Arduino IDE 重開，Tools → Board 應該可以選到 **Teensy 4.0**
+**版本鎖（本手冊驗證版本）：**
+- Arduino IDE **2.3.x**（最低 2.0.4；2.3.8 是 2026 年的當前版）
+- Teensyduino **1.60**（2026 年當前版）
+- Adafruit_MPR121 library **1.1.3**
 
-**編譯上傳流程（跟一般 Arduino 不一樣）：**
+**安裝步驟：**
+1. 先裝 Arduino IDE 2.3+： [arduino.cc/en/software](https://www.arduino.cc/en/software)
+2. 到 [pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html) 下載 Teensyduino 安裝包（Win/Mac/Linux 都有）
+3. 執行安裝（會自動偵測 Arduino IDE 位置，把 Teensy 板子支援檔灌進去）
+4. Arduino IDE 重開，Tools → Board → **Teensy → Teensy 4.0**
+
+### Linux 額外步驟（udev rules）⚠️
+
+Linux 上不裝 udev rules 會**無法上傳**（permission denied）。執行一次：
+
+```bash
+curl -L https://www.pjrc.com/teensy/00-teensy.rules \
+  | sudo tee /etc/udev/rules.d/00-teensy.rules
+sudo udevadm control --reload-rules
+```
+
+然後把 Teensy 拔插一次。
+
+### Windows 上的驅動
+
+Teensyduino 安裝時會自動處理，第一次插入 Teensy 會被認成 HID 裝置。不用另外裝。
+
+### PROGRAM 按鈕在哪
+
+Teensy 4.0 板子上**靠近 Micro-B 接頭邊緣**有一顆很小的黑色實體按鈕（旁邊不一定有絲印，但對照 [PJRC 照片](https://www.pjrc.com/store/teensy40.html) 很好認）。Teensyduino 安裝後通常不用每次按 —— 但如果上傳卡住，按一下就強制進入 bootloader。
+
+**編譯上傳流程：**
 1. 點「上傳」按鈕 → Arduino IDE 編譯
 2. 編譯完會跳出 **Teensy Loader** 視窗
-3. 按 Teensy 板上的「PROGRAM」實體按鈕
-4. Teensy Loader 自動燒錄
+3. 第一次可能需要按 Teensy 板上的實體按鈕，之後通常會自動燒
 
 ---
 
@@ -117,6 +149,10 @@ Teensy 4.0 可以在 USB 上扮演很多角色（鍵盤、滑鼠、MIDI…）。
 ## 參考資料
 
 - [PJRC Teensy 4.0 商品頁](https://www.pjrc.com/store/teensy40.html)
-- [PJRC 官方腳位卡](https://www.pjrc.com/teensy/pinout.html)
+- [PJRC 官方腳位卡（HTML）](https://www.pjrc.com/teensy/pinout.html)
 - [互動式腳位圖](https://teensy40.pinout.xyz/)
 - [Teensyduino 下載](https://www.pjrc.com/teensy/td_download.html)
+- [PJRC Wire library for Teensy](https://www.pjrc.com/teensy/td_libs_Wire.html)（確認 Pin 18/19 = SDA0/SCL0）
+- [PJRC USB MIDI 文件](https://www.pjrc.com/teensy/td_midi.html)（`usbMIDI.sendNoteOn` 等 API 參考）
+- [PJRC 技術論壇](https://forum.pjrc.com/)（遇到硬體問題最快能找到解答的地方）
+- [Paul Stoffregen 官方 Getting Started 影片](https://www.youtube.com/watch?v=G5Nzn9rhOkE)
