@@ -11,7 +11,8 @@ firmware/
     ├── 01_i2c_scan/         Phase 1：掃 I²C bus 驗證 3 顆 MPR121
     ├── 02_mpr121_raw/       Phase 2：讀 touch state 驗證每個電極
     ├── 03_midi_out/         Phase 3：USB MIDI Note On/Off
-    └── 04_algorithms/       Phase 4：Slider 質心 + Jog 向量和
+    ├── 04_algorithms/       Phase 4：Slider 質心 + Jog 向量和
+    └── 05_full_integration/ Phase 5/6：3 顆 MPR121 完整韌體（30 電極 → 完整 MIDI 協議）
 ```
 
 完整測試流程見 [../docs/hardware/06-testing-plan.md](../docs/hardware/06-testing-plan.md)。

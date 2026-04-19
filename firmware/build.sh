@@ -17,6 +17,7 @@ SKETCHES=(
   "tests/02_mpr121_raw"
   "tests/03_midi_out"
   "tests/04_algorithms"
+  "tests/05_full_integration"
 )
 
 for s in "${SKETCHES[@]}"; do
@@ -25,4 +26,4 @@ for s in "${SKETCHES[@]}"; do
 done
 
 echo
-echo "All 4 sketches compiled OK."
+echo "All 5 sketches compiled OK."
