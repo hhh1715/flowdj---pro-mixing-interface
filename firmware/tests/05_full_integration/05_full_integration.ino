@@ -29,9 +29,12 @@
 #define VOLUME_DEADBAND 1   // 7-bit CC 7
 #define TEMPO_DEADBAND  8   // 14-bit ≈ 0.05%
 
-// 防雜訊：volume fader 需要的最小總權重，比 WSUM_MIN(=3) 嚴
-// 真實手指觸碰 wsum 通常 6+，單 pad baseline 漂移 ghost 約 3–5
-#define VOL_TOUCH_WSUM_MIN 6
+// 防雜訊：所有 fader / jog 都需要的最小總權重，比 WSUM_MIN(=3) 嚴
+// 真實手指觸碰會橫跨多 pad（wsum 通常 10+），單 pad baseline 漂移 ghost 約 3–5
+// 在雜訊大的環境（不同電腦的 USB 供電 / 接地 / EMI）會把 ghost 完全擋掉
+#define VOL_TOUCH_WSUM_MIN   8   // 5 pads
+#define TEMPO_TOUCH_WSUM_MIN 8   // 10 pads
+#define JOG_TOUCH_WSUM_MIN   5   // 8 pads，但手指通常只覆 1–2 顆 → 門檻較低
 
 // 100 Hz 掃描
 #define SCAN_INTERVAL_MS 10
@@ -172,11 +175,14 @@ void loop() {
   }
 
   // 3. Jog：Note 48 觸摸 + CC 16 旋轉
-  // 用 per-pad touched 狀態判斷有沒有摸（避免 8 個 pad 雜訊累加破 wsum 門檻）
+  // per-pad touched 狀態 + 總權重雙重把關，避免單 pad baseline 漂移 ghost
   bool jogTouch = false;
+  long jogWsum = 0;
   for (int i = 0; i < JOG_N; i++) {
-    if (touched_now[JOG_CHIP][JOG_START + i]) { jogTouch = true; break; }
+    if (touched_now[JOG_CHIP][JOG_START + i]) jogTouch = true;
+    jogWsum += getWeight(JOG_CHIP, JOG_START + i);
   }
+  if (jogTouch && jogWsum < JOG_TOUCH_WSUM_MIN) jogTouch = false;
   float jogAngle = jogTouch ? readJogAngle() : -1.0f;
 
   if (jogTouch != prev_jog_touch) {
@@ -206,11 +212,14 @@ void loop() {
     jog_residual   = 0;                  // 放開重置，避免下次接著觸發
   }
 
-  // 4. 速度 slider → 14-bit CC 14/46（同理用 per-pad touched 把關）
+  // 4. 速度 slider → 14-bit CC 14/46（同樣用 per-pad touched + 總權重雙重把關）
   bool speedTouch = false;
+  long speedWsum = 0;
   for (int i = 0; i < SPEED_N; i++) {
-    if (touched_now[SPEED_CHIP][SPEED_START + i]) { speedTouch = true; break; }
+    if (touched_now[SPEED_CHIP][SPEED_START + i]) speedTouch = true;
+    speedWsum += getWeight(SPEED_CHIP, SPEED_START + i);
   }
+  if (speedTouch && speedWsum < TEMPO_TOUCH_WSUM_MIN) speedTouch = false;
   float speed = speedTouch ? readCentroid(SPEED_CHIP, SPEED_START, SPEED_N) : -1.0f;
   if (speed >= 0) {
     int t14 = (int)(speed * 16383);
