@@ -2358,7 +2358,15 @@ export default function App() {
       : '--:--',
   }));
 
-  // ── 硬體 MIDI → Deck A 控制 ─────────────────────────────────────────────────
+  // ── 硬體 MIDI → Deck 控制 ───────────────────────────────────────────────────
+  // 硬體目前控制哪個 deck，存 localStorage（重整後保持）
+  const [hardwareDeck, setHardwareDeckState] = useState<'A' | 'B'>(() => {
+    if (typeof window === 'undefined') return 'A';
+    return window.localStorage.getItem('hw-active-deck') === 'B' ? 'B' : 'A';
+  });
+  const hardwareDeckRef = useRef<'A' | 'B'>(hardwareDeck);
+  hardwareDeckRef.current = hardwareDeck;
+
   // 硬體 Jog 狀態：摸下去 → 進 scratch、放開 → 復歸
   const hardwareJogRef = useRef<{ active: boolean; wasPlaying: boolean }>({
     active: false,
@@ -2429,6 +2437,16 @@ export default function App() {
     }
   };
 
+  // 切硬體控制的 deck：先把舊 deck 上未完結的 jog 收掉，再切換 + 持久化
+  const setHardwareDeck = (next: 'A' | 'B') => {
+    if (next === hardwareDeckRef.current) return;
+    if (hardwareJogRef.current.active) endHardwareJog(hardwareDeckRef.current);
+    setHardwareDeckState(next);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('hw-active-deck', next);
+    }
+  };
+
   // 硬體 CUE 自帶 fall-through：沒 cue 就用目前位置設一個、有 cue 就 recall。
   // 不依賴 UI 的 set mode（不然第一次按會 noop 沒反應）。
   const handleHardwareCuePress = (deck: 'A' | 'B') => {
@@ -2445,6 +2463,7 @@ export default function App() {
 
   // 用 ref 抓最新的 handler / state，這樣 onMidiEvent 本身可以保持穩定，
   // 不會每次 render 都讓 useMidi 重新訂閱。
+  // A/B 兩組 deck-specific 物件都放進來，dispatch 時根據 hardwareDeckRef 挑。
   const midiHandlersRef = useRef({
     toggleDeckPlayback,
     handleHardwareCuePress,
@@ -2454,13 +2473,13 @@ export default function App() {
     handlePadFxPress,
     handlePadFxRelease,
     handleTempoFaderChange,
-    levelControlA,
     startHardwareJog,
     endHardwareJog,
     applyHardwareJogDelta,
-    padModeA,
-    sampleButtonsA,
-    padFxButtonsA,
+    levelControlA, levelControlB,
+    padModeA, padModeB,
+    sampleButtonsA, sampleButtonsB,
+    padFxButtonsA, padFxButtonsB,
   });
   midiHandlersRef.current = {
     toggleDeckPlayback,
@@ -2471,13 +2490,13 @@ export default function App() {
     handlePadFxPress,
     handlePadFxRelease,
     handleTempoFaderChange,
-    levelControlA,
     startHardwareJog,
     endHardwareJog,
     applyHardwareJogDelta,
-    padModeA,
-    sampleButtonsA,
-    padFxButtonsA,
+    levelControlA, levelControlB,
+    padModeA, padModeB,
+    sampleButtonsA, sampleButtonsB,
+    padFxButtonsA, padFxButtonsB,
   };
 
   // 每個按鈕記住上次「按下」觸發時間，用來擋訊號彈跳造成的連發
@@ -2495,23 +2514,29 @@ export default function App() {
 
   const onMidiEvent = useCallback((event: FlowDjEvent) => {
     const h = midiHandlersRef.current;
+    const deck = hardwareDeckRef.current;
+    // 從 ref 拿這個 deck 對應的可變 state，每次 dispatch 都重新讀
+    const padMode       = deck === 'A' ? h.padModeA       : h.padModeB;
+    const sampleButtons = deck === 'A' ? h.sampleButtonsA : h.sampleButtonsB;
+    const padFxButtons  = deck === 'A' ? h.padFxButtonsA  : h.padFxButtonsB;
+    const levelControl  = deck === 'A' ? h.levelControlA  : h.levelControlB;
 
     // 速度 slider：normalized 0.0–1.0 → tempo fader 0–100
     // 物理上端=0.0 → fader 頂端（-8% 慢）；下端=1.0 → fader 底端（+8% 快）
     if (event.type === 'tempo') {
-      h.handleTempoFaderChange('A', event.normalized * 100);
+      h.handleTempoFaderChange(deck, event.normalized * 100);
       return;
     }
 
     // 音量 fader：CC 7 0–127 → level slider 0–100
     if (event.type === 'volume') {
-      h.levelControlA.onChange((event.value / 127) * 100);
+      levelControl.onChange((event.value / 127) * 100);
       return;
     }
 
     // Jog 旋轉：signed delta（degrees per 10ms 取樣，已 clamp ±63）
     if (event.type === 'jogDelta') {
-      h.applyHardwareJogDelta('A', event.delta);
+      h.applyHardwareJogDelta(deck, event.delta);
       return;
     }
 
@@ -2519,19 +2544,19 @@ export default function App() {
 
     // Jog 觸摸：press → 進 scratch、release → 復歸（兩端都要動，不走 debounce）
     if (event.button === 'jogTouch') {
-      if (event.pressed) h.startHardwareJog('A');
-      else               h.endHardwareJog('A');
+      if (event.pressed) h.startHardwareJog(deck);
+      else               h.endHardwareJog(deck);
       return;
     }
 
     const padIndex = padIndexFromButton(event.button);
 
     // padFx 在 release 也要動，其他按鈕只在 press 動
-    if (padIndex !== null && h.padModeA === 'padFx') {
-      const pad = h.padFxButtonsA[padIndex];
+    if (padIndex !== null && padMode === 'padFx') {
+      const pad = padFxButtons[padIndex];
       if (!pad) return;
-      if (event.pressed) h.handlePadFxPress('A', pad.id);
-      else               h.handlePadFxRelease('A', pad.id);
+      if (event.pressed) h.handlePadFxPress(deck, pad.id);
+      else               h.handlePadFxRelease(deck, pad.id);
       return;
     }
 
@@ -2545,18 +2570,18 @@ export default function App() {
     lastButtonPressAtRef.current[event.button] = now;
 
     if (padIndex !== null) {
-      if (h.padModeA === 'hotCue') {
-        void h.handleDeckHotCuePress('A', padIndex);
-      } else if (h.padModeA === 'sample') {
-        const sample = h.sampleButtonsA[padIndex];
-        if (sample) h.handleSampleTrigger('A', sample);
+      if (padMode === 'hotCue') {
+        void h.handleDeckHotCuePress(deck, padIndex);
+      } else if (padMode === 'sample') {
+        const sample = sampleButtons[padIndex];
+        if (sample) h.handleSampleTrigger(deck, sample);
       }
       return;
     }
 
-    if (event.button === 'play')      void h.toggleDeckPlayback('A');
-    else if (event.button === 'cue')  h.handleHardwareCuePress('A');
-    else if (event.button === 'sync') h.handleSyncClick('A');
+    if (event.button === 'play')      void h.toggleDeckPlayback(deck);
+    else if (event.button === 'cue')  h.handleHardwareCuePress(deck);
+    else if (event.button === 'sync') h.handleSyncClick(deck);
   }, []);
 
   useMidi({ onEvent: onMidiEvent });
@@ -3414,6 +3439,30 @@ export default function App() {
 
         {/* Right Controls */}
         <div className="flex items-center gap-3 [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:gap-1.5">
+          {/* 硬體目前控制哪一台 deck，A=橘 / B=藍，點一下切換 */}
+          <button
+            type="button"
+            onClick={() => setHardwareDeck(hardwareDeck === 'A' ? 'B' : 'A')}
+            title={`Hardware → Deck ${hardwareDeck}（點擊切換）`}
+            aria-label={`Hardware controlling Deck ${hardwareDeck}, click to switch`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 8px',
+              background: 'rgba(15, 15, 20, 0.92)',
+              color: hardwareDeck === 'A' ? '#FF9457' : '#4FC3F7',
+              fontFamily: 'ui-monospace, Menlo, monospace',
+              fontSize: 10,
+              fontWeight: 700,
+              border: `1px solid ${hardwareDeck === 'A' ? 'rgba(255,148,87,0.5)' : 'rgba(79,195,247,0.5)'}`,
+              borderRadius: 6,
+              cursor: 'pointer',
+              lineHeight: 1,
+            }}
+          >
+            HW → {hardwareDeck}
+          </button>
           <MidiMonitorToggle />
           <button
             onClick={() => handleDeckCuePress('B')}
