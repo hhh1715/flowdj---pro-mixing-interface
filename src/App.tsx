@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { 
   SkipBack, 
   SkipForward, 
@@ -109,7 +109,8 @@ import {
   getVerticalFaderValueFromPointer,
 } from './crossfader.js';
 import { getKnobRotationDegrees, getKnobValueFromHorizontalDrag } from './knob.js';
-import { MidiMonitor } from './hardware/MidiMonitor';
+import { MidiMonitor, MidiMonitorToggle } from './hardware/MidiMonitor';
+import { useMidi, type FlowDjEvent } from './hardware/webmidi';
 
 const PlayPauseIcon = ({ width = 28, height = 18 }: { width?: number; height?: number }) => (
   <svg
@@ -2357,6 +2358,209 @@ export default function App() {
       : '--:--',
   }));
 
+  // ── 硬體 MIDI → Deck A 控制 ─────────────────────────────────────────────────
+  // 硬體 Jog 狀態：摸下去 → 進 scratch、放開 → 復歸
+  const hardwareJogRef = useRef<{ active: boolean; wasPlaying: boolean }>({
+    active: false,
+    wasPlaying: false,
+  });
+
+  // 100Hz MIDI 寫 audio.currentTime 太頻繁會卡，用 RAF 批次累加（~60Hz）
+  const jogDeltaAccumRef = useRef(0);
+  const jogRafRef = useRef<number | null>(null);
+  const jogDeckRef = useRef<'A' | 'B'>('A');
+
+  // 累計值小於 2 度就先不 seek，等下一個 frame 累積再說，省 audio.currentTime 寫入
+  const JOG_MIN_ACCUM_DEG = 2;
+  const flushJogDelta = () => {
+    jogRafRef.current = null;
+    if (!hardwareJogRef.current.active) return;
+    if (Math.abs(jogDeltaAccumRef.current) < JOG_MIN_ACCUM_DEG) {
+      // 還是要持續排下一個 frame，否則新 delta 進來會卡住
+      jogRafRef.current = requestAnimationFrame(flushJogDelta);
+      return;
+    }
+    const accum = jogDeltaAccumRef.current;
+    jogDeltaAccumRef.current = 0;
+    const deck = jogDeckRef.current;
+    const audio = deck === 'A' ? audioRefA.current : audioRefB.current;
+    if (!audio) return;
+    const setJogRotation = deck === 'A' ? setJogRotationA : setJogRotationB;
+    setJogRotation((prev) => (prev + accum + 360) % 360);
+    updateDeckPlaybackTime(deck, audio.currentTime + accum * HARDWARE_JOG_SCRUB_RATIO);
+  };
+
+  const startHardwareJog = (deck: 'A' | 'B') => {
+    const audio = deck === 'A' ? audioRefA.current : audioRefB.current;
+    if (!audio) return;
+    hardwareJogRef.current = { active: true, wasPlaying: !audio.paused };
+    jogDeckRef.current = deck;
+    jogDeltaAccumRef.current = 0;
+    if (deck === 'A') setIsJogDotDraggingA(true);
+    else              setIsJogDotDraggingB(true);
+  };
+
+  const endHardwareJog = (deck: 'A' | 'B') => {
+    if (!hardwareJogRef.current.active) return;
+    const { wasPlaying } = hardwareJogRef.current;
+    hardwareJogRef.current = { active: false, wasPlaying: false };
+    if (jogRafRef.current !== null) {
+      cancelAnimationFrame(jogRafRef.current);
+      jogRafRef.current = null;
+    }
+    jogDeltaAccumRef.current = 0;
+    if (deck === 'A') setIsJogDotDraggingA(false);
+    else              setIsJogDotDraggingB(false);
+    const audio = deck === 'A' ? audioRefA.current : audioRefB.current;
+    if (wasPlaying && audio?.paused) {
+      void audio.play().catch(() => {});
+    }
+  };
+
+  // delta（degrees per 10ms）→ 旋轉視覺 + scrub 音訊
+  // 0.018：搭配韌體小數累加器調出來的甜蜜點
+  const HARDWARE_JOG_SCRUB_RATIO = 0.018;
+  const applyHardwareJogDelta = (deck: 'A' | 'B', delta: number) => {
+    if (!hardwareJogRef.current.active || delta === 0) return;
+    jogDeckRef.current = deck;
+    jogDeltaAccumRef.current += delta;
+    if (jogRafRef.current === null) {
+      jogRafRef.current = requestAnimationFrame(flushJogDelta);
+    }
+  };
+
+  // 硬體 CUE 自帶 fall-through：沒 cue 就用目前位置設一個、有 cue 就 recall。
+  // 不依賴 UI 的 set mode（不然第一次按會 noop 沒反應）。
+  const handleHardwareCuePress = (deck: 'A' | 'B') => {
+    const cueState = deck === 'A' ? cueStateA : cueStateB;
+    if (cueState.isCueSet) {
+      handleDeckCuePress(deck);
+      return;
+    }
+    const audio = deck === 'A' ? audioRefA.current : audioRefB.current;
+    const setCueState = deck === 'A' ? setCueStateA : setCueStateB;
+    if (!audio) return;
+    setCueState(applyCueAssignment({ state: cueState, currentTime: audio.currentTime }));
+  };
+
+  // 用 ref 抓最新的 handler / state，這樣 onMidiEvent 本身可以保持穩定，
+  // 不會每次 render 都讓 useMidi 重新訂閱。
+  const midiHandlersRef = useRef({
+    toggleDeckPlayback,
+    handleHardwareCuePress,
+    handleSyncClick,
+    handleDeckHotCuePress,
+    handleSampleTrigger,
+    handlePadFxPress,
+    handlePadFxRelease,
+    handleTempoFaderChange,
+    levelControlA,
+    startHardwareJog,
+    endHardwareJog,
+    applyHardwareJogDelta,
+    padModeA,
+    sampleButtonsA,
+    padFxButtonsA,
+  });
+  midiHandlersRef.current = {
+    toggleDeckPlayback,
+    handleHardwareCuePress,
+    handleSyncClick,
+    handleDeckHotCuePress,
+    handleSampleTrigger,
+    handlePadFxPress,
+    handlePadFxRelease,
+    handleTempoFaderChange,
+    levelControlA,
+    startHardwareJog,
+    endHardwareJog,
+    applyHardwareJogDelta,
+    padModeA,
+    sampleButtonsA,
+    padFxButtonsA,
+  };
+
+  // 每個按鈕記住上次「按下」觸發時間，用來擋訊號彈跳造成的連發
+  // padFx 需要 press + release，所以只 debounce press
+  const lastButtonPressAtRef = useRef<Record<string, number>>({});
+  const BUTTON_DEBOUNCE_MS = 200;
+
+  const padIndexFromButton = (btn: string): number | null => {
+    if (btn === 'pad1') return 0;
+    if (btn === 'pad2') return 1;
+    if (btn === 'pad3') return 2;
+    if (btn === 'pad4') return 3;
+    return null;
+  };
+
+  const onMidiEvent = useCallback((event: FlowDjEvent) => {
+    const h = midiHandlersRef.current;
+
+    // 速度 slider：normalized 0.0–1.0 → tempo fader 0–100
+    // 物理上端=0.0 → fader 頂端（-8% 慢）；下端=1.0 → fader 底端（+8% 快）
+    if (event.type === 'tempo') {
+      h.handleTempoFaderChange('A', event.normalized * 100);
+      return;
+    }
+
+    // 音量 fader：CC 7 0–127 → level slider 0–100
+    if (event.type === 'volume') {
+      h.levelControlA.onChange((event.value / 127) * 100);
+      return;
+    }
+
+    // Jog 旋轉：signed delta（degrees per 10ms 取樣，已 clamp ±63）
+    if (event.type === 'jogDelta') {
+      h.applyHardwareJogDelta('A', event.delta);
+      return;
+    }
+
+    if (event.type !== 'button') return;
+
+    // Jog 觸摸：press → 進 scratch、release → 復歸（兩端都要動，不走 debounce）
+    if (event.button === 'jogTouch') {
+      if (event.pressed) h.startHardwareJog('A');
+      else               h.endHardwareJog('A');
+      return;
+    }
+
+    const padIndex = padIndexFromButton(event.button);
+
+    // padFx 在 release 也要動，其他按鈕只在 press 動
+    if (padIndex !== null && h.padModeA === 'padFx') {
+      const pad = h.padFxButtonsA[padIndex];
+      if (!pad) return;
+      if (event.pressed) h.handlePadFxPress('A', pad.id);
+      else               h.handlePadFxRelease('A', pad.id);
+      return;
+    }
+
+    // 其他 button events 只在 press 時動
+    if (!event.pressed) return;
+
+    // press debounce
+    const now = Date.now();
+    const lastAt = lastButtonPressAtRef.current[event.button] ?? 0;
+    if (now - lastAt < BUTTON_DEBOUNCE_MS) return;
+    lastButtonPressAtRef.current[event.button] = now;
+
+    if (padIndex !== null) {
+      if (h.padModeA === 'hotCue') {
+        void h.handleDeckHotCuePress('A', padIndex);
+      } else if (h.padModeA === 'sample') {
+        const sample = h.sampleButtonsA[padIndex];
+        if (sample) h.handleSampleTrigger('A', sample);
+      }
+      return;
+    }
+
+    if (event.button === 'play')      void h.toggleDeckPlayback('A');
+    else if (event.button === 'cue')  h.handleHardwareCuePress('A');
+    else if (event.button === 'sync') h.handleSyncClick('A');
+  }, []);
+
+  useMidi({ onEvent: onMidiEvent });
+
   return (
     <div className="h-screen [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:h-[100svh] [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:min-h-[100svh] w-screen flex flex-col bg-base-grey select-none overflow-hidden text-gray-900 font-sans relative">
       
@@ -3210,6 +3414,7 @@ export default function App() {
 
         {/* Right Controls */}
         <div className="flex items-center gap-3 [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:gap-1.5">
+          <MidiMonitorToggle />
           <button
             onClick={() => handleDeckCuePress('B')}
             className={cueRecallButtonClassName(cueStateB.isCueSet, cueStateB.isSetMode)}

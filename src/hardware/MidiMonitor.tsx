@@ -1,16 +1,55 @@
 /**
  * MidiMonitor — webmidi.ts 的 smoke-test UI
  *
- * 用法：import 進 App.tsx 任一地方，會顯示 fixed 右下角小 panel，列出：
- *   - MIDI 連線狀態 / 錯誤訊息
- *   - 偵測到的 MIDI 輸入裝置名稱
- *   - 最近 10 筆解析後的 FlowDjEvent
- *   - 最近 1 筆 raw MIDI（cc/note/channel）
+ * 兩個 entry point：
+ *   - <MidiMonitorToggle />：行內小膠囊，顯示 ● 燈號 + "MIDI"，點開 / 收。
+ *   - <MidiMonitor />：展開時的浮動 panel（fixed 右下，列出最近事件）。
  *
- * 可用 ?midi=1 當啟用條件，或直接無條件渲染。
+ * 兩者透過 localStorage + 'midi-monitor-toggle' custom event 同步狀態，
+ * 不需要 lift state up 到 App.tsx。
  */
 
+import type { CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { useMidi, FlowDjEvent, MidiRawEvent } from './webmidi';
+
+const COLLAPSED_KEY = 'midi-monitor-collapsed';
+const TOGGLE_EVENT = 'midi-monitor-toggle';
+
+// ── 共用：collapsed 狀態跟 localStorage 同步 + 跨元件廣播 ─────────────────────
+function useCollapsedState(): [boolean, (next: boolean) => void] {
+  const [collapsed, setCollapsedState] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(COLLAPSED_KEY) === '1';
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onToggle = (e: Event) => {
+      const next = (e as CustomEvent<boolean>).detail;
+      setCollapsedState(next);
+    };
+    window.addEventListener(TOGGLE_EVENT, onToggle);
+    return () => window.removeEventListener(TOGGLE_EVENT, onToggle);
+  }, []);
+
+  const setCollapsed = (next: boolean) => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0');
+    window.dispatchEvent(new CustomEvent(TOGGLE_EVENT, { detail: next }));
+  };
+
+  return [collapsed, setCollapsed];
+}
+
+// ── 共用：把 status 轉成色票 ─────────────────────────────────────────────────
+const STATUS_COLORS = {
+  idle: '#888',
+  connecting: '#fbbf24',
+  ready: '#22c55e',
+  unsupported: '#ef4444',
+  error: '#ef4444',
+} as const;
 
 function formatEvent(e: FlowDjEvent): string {
   switch (e.type) {
@@ -30,44 +69,90 @@ function formatRaw(e: MidiRawEvent): string {
   return `${e.type} note=${e.note}${e.type === 'noteOn' ? ` vel=${e.velocity}` : ''} ch${e.channel}`;
 }
 
-export function MidiMonitor() {
-  const { status, error, inputNames, lastRawEvent, eventLog } = useMidi({ logSize: 10 });
-
-  const statusColor = {
-    idle: '#888',
-    connecting: '#fbbf24',
-    ready: '#22c55e',
-    unsupported: '#ef4444',
-    error: '#ef4444',
-  }[status];
+// ── 行內小膠囊：放在 footer Deck B CUE 旁邊 ──────────────────────────────────
+export function MidiMonitorToggle() {
+  const { status } = useMidi({ logSize: 1 });
+  const [collapsed, setCollapsed] = useCollapsedState();
+  const statusColor = STATUS_COLORS[status];
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => setCollapsed(!collapsed)}
+      aria-label={collapsed ? 'Expand MIDI Monitor' : 'Collapse MIDI Monitor'}
+      aria-expanded={!collapsed}
+      title={`MIDI: ${status}`}
       style={{
-        position: 'fixed',
-        right: 12,
-        bottom: 12,
-        width: 340,
-        maxHeight: 280,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 8px',
         background: 'rgba(15, 15, 20, 0.92)',
         color: '#e5e5e5',
         fontFamily: 'ui-monospace, Menlo, monospace',
-        fontSize: 11,
-        padding: 10,
-        borderRadius: 8,
-        border: '1px solid rgba(255,255,255,0.1)',
-        zIndex: 9999,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 6,
-        pointerEvents: 'none', // smoke test only, 不擋 UI 點擊
+        fontSize: 10,
+        fontWeight: 600,
+        border: '1px solid rgba(255,255,255,0.12)',
+        borderRadius: 6,
+        cursor: 'pointer',
+        lineHeight: 1,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span style={{ color: statusColor, fontSize: 12 }}>●</span>
+      MIDI
+    </button>
+  );
+}
+
+// ── 展開時的浮動 panel ───────────────────────────────────────────────────────
+export function MidiMonitor() {
+  const { status, error, inputNames, lastRawEvent, eventLog } = useMidi({ logSize: 10 });
+  const [collapsed, setCollapsed] = useCollapsedState();
+
+  if (collapsed) return null;
+
+  const statusColor = STATUS_COLORS[status];
+
+  const baseStyle: CSSProperties = {
+    position: 'fixed',
+    right: 12,
+    bottom: 12,
+    width: 340,
+    maxHeight: 280,
+    background: 'rgba(15, 15, 20, 0.92)',
+    color: '#e5e5e5',
+    fontFamily: 'ui-monospace, Menlo, monospace',
+    fontSize: 11,
+    padding: 10,
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.1)',
+    zIndex: 9999,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+  };
+
+  return (
+    <div style={baseStyle}>
+      <button
+        type="button"
+        onClick={() => setCollapsed(true)}
+        aria-label="Collapse MIDI Monitor"
+        style={{
+          all: 'unset',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'pointer',
+        }}
+      >
         <strong style={{ fontSize: 12 }}>MIDI Monitor</strong>
-        <span style={{ color: statusColor }}>● {status}</span>
-      </div>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: statusColor }}>● {status}</span>
+          <span style={{ color: '#888', fontSize: 14, lineHeight: 1 }}>−</span>
+        </span>
+      </button>
 
       {error && (
         <div style={{ color: '#fca5a5' }}>error: {error.message}</div>
