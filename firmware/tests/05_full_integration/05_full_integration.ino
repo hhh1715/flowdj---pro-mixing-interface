@@ -19,10 +19,12 @@
 #define NUM_ELE    12
 
 // 軟體觸控判斷（跟 02/03/04 對齊；晶片內建 baseline 在導電墨設置上失效）
-#define TOUCH_DELTA   3
+// TOUCH_DELTA / NOISE_THR 在不同環境（不同電腦的 USB 供電 / 接地 / EMI）會有不同的雜訊地板。
+// 4 / 3 是「雜訊較大環境（如 Windows 桌機）」夠用的設定；如過於遲鈍可降回 3 / 1
+#define TOUCH_DELTA   4     // 觸控進入門檻；3 會吃到 Windows 桌機的環境雜訊
 #define RELEASE_DELTA 1
 #define BASELINE_EMA  0.99f
-#define NOISE_THR     1     // 04 驗過：你的 delta 約 5–7，門檻 1 才不會吃光
+#define NOISE_THR     3     // weight 計算時忽略 delta ≤ 3 的雜訊
 #define WSUM_MIN      3
 
 // MIDI 發送門檻（避免雜訊狂送）
