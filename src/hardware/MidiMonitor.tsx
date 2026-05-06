@@ -69,7 +69,15 @@ function formatRaw(e: MidiRawEvent): string {
   return `${e.type} note=${e.note}${e.type === 'noteOn' ? ` vel=${e.velocity}` : ''} ch${e.channel}`;
 }
 
-// ── 行內小膠囊：放在 footer Deck B CUE 旁邊 ──────────────────────────────────
+// ── 行內按鈕：樣式對齊 CUE / Play 等 transport secondary 鈕 ────────────────────
+const TRANSPORT_SECONDARY_CLASS =
+  "px-4 [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:px-3 " +
+  "h-10 [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:h-8 " +
+  "rounded-xl flex items-center justify-center gap-1.5 transition-all " +
+  "shadow-[2px_2px_4px_#2a2a2a,-2px_-2px_4px_#4e4e4e] " +
+  "active:shadow-[inset_2px_2px_4px_#2a2a2a,inset_-2px_-2px_4px_#4e4e4e] active:scale-95 " +
+  "border border-white/10 bg-[#D0D0D0] text-[#3C3C3C]";
+
 export function MidiMonitorToggle() {
   const { status } = useMidi({ logSize: 1 });
   const [collapsed, setCollapsed] = useCollapsedState();
@@ -82,24 +90,12 @@ export function MidiMonitorToggle() {
       aria-label={collapsed ? 'Expand MIDI Monitor' : 'Collapse MIDI Monitor'}
       aria-expanded={!collapsed}
       title={`MIDI: ${status}`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '4px 8px',
-        background: 'rgba(15, 15, 20, 0.92)',
-        color: '#e5e5e5',
-        fontFamily: 'ui-monospace, Menlo, monospace',
-        fontSize: 10,
-        fontWeight: 600,
-        border: '1px solid rgba(255,255,255,0.12)',
-        borderRadius: 6,
-        cursor: 'pointer',
-        lineHeight: 1,
-      }}
+      className={TRANSPORT_SECONDARY_CLASS}
     >
-      <span style={{ color: statusColor, fontSize: 12 }}>●</span>
-      MIDI
+      <span style={{ color: statusColor, fontSize: 11, lineHeight: 1 }}>●</span>
+      <span className="text-[10px] [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:text-[9px] font-bold tracking-widest">
+        MIDI
+      </span>
     </button>
   );
 }

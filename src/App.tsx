@@ -3439,29 +3439,21 @@ export default function App() {
 
         {/* Right Controls */}
         <div className="flex items-center gap-3 [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:gap-1.5">
-          {/* 硬體目前控制哪一台 deck，A=橘 / B=藍，點一下切換 */}
+          {/* 硬體目前控制哪一台 deck，A=橘 / B=藍，點一下切換；尺寸對齊 CUE/Play */}
           <button
             type="button"
             onClick={() => setHardwareDeck(hardwareDeck === 'A' ? 'B' : 'A')}
             title={`Hardware → Deck ${hardwareDeck}（點擊切換）`}
             aria-label={`Hardware controlling Deck ${hardwareDeck}, click to switch`}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '4px 8px',
-              background: 'rgba(15, 15, 20, 0.92)',
-              color: hardwareDeck === 'A' ? '#FF9457' : '#4FC3F7',
-              fontFamily: 'ui-monospace, Menlo, monospace',
-              fontSize: 10,
-              fontWeight: 700,
-              border: `1px solid ${hardwareDeck === 'A' ? 'rgba(255,148,87,0.5)' : 'rgba(79,195,247,0.5)'}`,
-              borderRadius: 6,
-              cursor: 'pointer',
-              lineHeight: 1,
-            }}
+            className={`${transportSecondaryButtonClassName} ${
+              hardwareDeck === 'A'
+                ? 'bg-[#FFE2D6] text-[#8A4A00] ring-1 ring-[#FF9457]/45 shadow-[0_0_14px_rgba(255,148,87,0.18),2px_2px_4px_#2a2a2a,-2px_-2px_4px_#4e4e4e]'
+                : 'bg-[#D6EAFF] text-[#003F7A] ring-1 ring-[#4FC3F7]/45 shadow-[0_0_14px_rgba(79,195,247,0.22),2px_2px_4px_#2a2a2a,-2px_-2px_4px_#4e4e4e]'
+            }`}
           >
-            HW → {hardwareDeck}
+            <span className="text-[10px] [@media(hover:none)_and_(pointer:coarse)_and_(min-width:820px)_and_(max-width:1180px)_and_(max-height:900px)]:text-[9px] font-bold tracking-widest">
+              HW {hardwareDeck}
+            </span>
           </button>
           <MidiMonitorToggle />
           <button
