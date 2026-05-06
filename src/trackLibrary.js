@@ -61,4 +61,12 @@ export const TRACK_LIBRARY = [
     key: '8A',
     src: '/audio/ill-see-you-there-tomorrow.mp3',
   }),
+  createLibraryTrack({
+    id: 'crowd-lu-good-morning',
+    title: '早安，晨之美！',
+    artist: 'Crowd Lu',
+    bpm: 120,
+    key: '8A',
+    src: '/audio/crowd-lu-good-morning.mp3',
+  }),
 ];
