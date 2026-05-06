@@ -29,6 +29,10 @@
 #define VOLUME_DEADBAND 1   // 7-bit CC 7
 #define TEMPO_DEADBAND  8   // 14-bit ≈ 0.05%
 
+// 防雜訊：volume fader 需要的最小總權重，比 WSUM_MIN(=3) 嚴
+// 真實手指觸碰 wsum 通常 6+，單 pad baseline 漂移 ghost 約 3–5
+#define VOL_TOUCH_WSUM_MIN 6
+
 // 100 Hz 掃描
 #define SCAN_INTERVAL_MS 10
 
@@ -219,10 +223,15 @@ void loop() {
   }
 
   // 5. 音量 fader → 7-bit CC 7（同理）
+  // 雙重把關：per-pad hysteresis 之外，再要求總權重夠強，
+  // 否則單 pad baseline 漂移 + 鄰居雜訊會讓 centroid 在小範圍亂跳
   bool volTouch = false;
+  long volWsum = 0;
   for (int i = 0; i < VOL_N; i++) {
-    if (touched_now[VOL_CHIP][VOL_START + i]) { volTouch = true; break; }
+    if (touched_now[VOL_CHIP][VOL_START + i]) volTouch = true;
+    volWsum += getWeight(VOL_CHIP, VOL_START + i);
   }
+  if (volTouch && volWsum < VOL_TOUCH_WSUM_MIN) volTouch = false;
   float vol = volTouch ? readCentroid(VOL_CHIP, VOL_START, VOL_N) : -1.0f;
   if (vol >= 0) {
     int v7 = (int)(vol * 127);
